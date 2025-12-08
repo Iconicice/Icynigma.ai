@@ -69,7 +69,7 @@ export default function Chat() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
-      <header className="border-b border-border/20 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border/30 bg-gradient-to-r from-card/60 to-card/40 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
@@ -81,9 +81,9 @@ export default function Chat() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold">Chat with Icynigma</h1>
-              <p className="text-sm text-muted-foreground">
-                {user?.name || "Guest"}
+              <h1 className="text-xl font-bold text-accent">Icynigma</h1>
+              <p className="text-xs text-muted-foreground">
+                Philosophical Dialogue with {user?.name || "Guest"}
               </p>
             </div>
           </div>
