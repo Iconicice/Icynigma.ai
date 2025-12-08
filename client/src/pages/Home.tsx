@@ -9,10 +9,16 @@
  * - Typography: Playfair Display (headings) + Lato (body)
  */
 
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { getLoginUrl } from "@/const";
+import { useLocation } from "wouter";
 
 export default function Home() {
+  const { user, isAuthenticated, logout } = useAuth();
+  const [, setLocation] = useLocation();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
@@ -41,8 +47,15 @@ export default function Home() {
             <Button 
               size="lg"
               className="bg-accent hover:bg-accent/90 text-accent-foreground font-medium transition-all duration-300"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  window.location.href = getLoginUrl();
+                } else {
+                  setLocation("/chat");
+                }
+              }}
             >
-              Explore <ArrowRight className="ml-2 h-4 w-4" />
+              {isAuthenticated ? "Chat with AI" : "Get Started"} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -124,8 +137,15 @@ export default function Home() {
           <Button 
             size="lg"
             className="bg-accent hover:bg-accent/90 text-accent-foreground font-medium transition-all duration-300"
+            onClick={() => {
+              if (!isAuthenticated) {
+                window.location.href = getLoginUrl();
+              } else {
+                setLocation("/chat");
+              }
+            }}
           >
-            Get Started
+            {isAuthenticated ? "Open Chat" : "Sign In"}
           </Button>
         </div>
       </section>
