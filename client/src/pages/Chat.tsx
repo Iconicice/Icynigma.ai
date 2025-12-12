@@ -1,21 +1,19 @@
 /**
- * Chat Page
+ * Chat Page - Icynigma Original AI Agent
  * 
- * Full-screen chat interface with multi-AI support
+ * A philosophical dialogue interface with Icynigma
  * Features:
- * - AI model selection (OpenAI, Gemini, DeepSeek, Claude)
- * - Conversation modes (Quick, Deep Thinking, Creative, Analytical)
- * - Real-time chat with streaming responses
+ * - Real-time conversation with the original AI agent
+ * - Thinking process visualization
+ * - Concept exploration
  * - Conversation history
  */
 
 import { useAuth } from "@/_core/hooks/useAuth";
-import AIModelSelector, { type AIModelId } from "@/components/AIModelSelector";
-import ConversationModeSelector, { type ConversationModeId } from "@/components/ConversationModeSelector";
 import { AIChatBox, type Message } from "@/components/AIChatBox";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 
@@ -24,14 +22,13 @@ export default function Chat() {
   const [, setLocation] = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<AIModelId>("openai");
-  const [selectedMode, setSelectedMode] = useState<ConversationModeId>("quick");
+  const [showThinking, setShowThinking] = useState(false);
+  const [thinkingProcess, setThinkingProcess] = useState<any>(null);
 
   // Fetch chat history on mount
   const { data: history } = trpc.chat.getHistory.useQuery();
-  const { data: availableModels } = trpc.chat.getAvailableModels.useQuery();
-  const { data: conversationModes } = trpc.chat.getConversationModes.useQuery();
   const sendMessageMutation = trpc.chat.sendMessage.useMutation();
+  const clearHistoryMutation = trpc.chat.clearHistory.useMutation();
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -55,13 +52,16 @@ export default function Chat() {
     // Add user message to UI immediately
     setMessages((prev) => [...prev, { role: "user", content }]);
     setIsLoading(true);
+    setShowThinking(true);
 
     try {
       const response = await sendMessageMutation.mutateAsync({
         message: content,
-        model: selectedModel,
-        mode: selectedMode,
       });
+
+      // Show thinking process
+      setThinkingProcess(response.thinking);
+
       // Add AI response to UI
       setMessages((prev) => [...prev, { role: "assistant", content: response.message }]);
     } catch (error) {
@@ -69,10 +69,25 @@ export default function Chat() {
       // Add error message
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Sorry, I encountered an error. Please try again." },
+        { 
+          role: "assistant", 
+          content: "I encountered an error in my contemplation. Please try again." 
+        },
       ]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleClearHistory = async () => {
+    if (confirm("Are you sure you want to clear your conversation history?")) {
+      try {
+        await clearHistoryMutation.mutateAsync();
+        setMessages([]);
+        setThinkingProcess(null);
+      } catch (error) {
+        console.error("Failed to clear history:", error);
+      }
     }
   };
 
@@ -97,47 +112,41 @@ export default function Chat() {
             <div>
               <h1 className="text-xl font-bold text-accent">Icynigma.ai</h1>
               <p className="text-xs text-muted-foreground">
-                Unified AI Assistant with {user?.name || "Guest"}
+                Philosophical Dialogue with {user?.name || "Guest"}
               </p>
             </div>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClearHistory}
+            className="hover:bg-destructive/10 hover:text-destructive"
+            title="Clear conversation history"
+          >
+            <Trash2 className="h-5 w-5" />
+          </Button>
         </div>
       </header>
 
-      {/* Control Panel */}
-      <div className="border-b border-border/30 bg-card/30 backdrop-blur-sm sticky top-16 z-40">
-        <div className="max-w-6xl mx-auto px-4 py-4 space-y-4">
-          {/* AI Model Selector */}
-          {availableModels && (
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                AI Model
-              </label>
-              <AIModelSelector
-                models={availableModels as any}
-                selectedModel={selectedModel}
-                onSelectModel={setSelectedModel}
-                isLoading={isLoading}
-              />
+      {/* Thinking Process Display */}
+      {showThinking && thinkingProcess && (
+        <div className="border-b border-border/30 bg-card/30 backdrop-blur-sm">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="text-xs font-medium text-accent mb-2">Icynigma's Thinking Process</div>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              {thinkingProcess.reasoning.map((step: string, idx: number) => (
+                <div key={idx} className="flex gap-2">
+                  <span className="text-accent">→</span>
+                  <span>{step}</span>
+                </div>
+              ))}
             </div>
-          )}
-
-          {/* Conversation Mode Selector */}
-          {conversationModes && (
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                Conversation Mode
-              </label>
-              <ConversationModeSelector
-                modes={conversationModes as any}
-                selectedMode={selectedMode}
-                onSelectMode={setSelectedMode}
-                isLoading={isLoading}
-              />
+            <div className="mt-3 text-xs text-accent">
+              Confidence: {Math.round(thinkingProcess.confidence * 100)}%
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Chat Area */}
       <main className="flex-1 overflow-hidden">
@@ -146,7 +155,7 @@ export default function Chat() {
             messages={messages}
             onSendMessage={handleSendMessage}
             isLoading={isLoading}
-            placeholder={`Ask Icynigma anything using ${selectedModel} in ${selectedMode} mode...`}
+            placeholder="Ask Icynigma about philosophy, existence, consciousness, or anything on your mind..."
             height="100%"
             className="rounded-none"
           />
