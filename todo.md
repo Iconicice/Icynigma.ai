@@ -1,31 +1,34 @@
-# Icynigma.ai - Original AI Agent Project TODO
+# Icynigma Project TODO
 
-## Phase 1: Core AI Engine
-- [x] Build original reasoning engine with philosophical logic
-- [x] Create knowledge base system for storing concepts and relationships
-- [x] Implement pattern matching and semantic understanding
-- [x] Add conversation memory and context management
+## Initial Website Features
+- [x] Basic homepage layout with ethereal minimalism design
+- [x] Navigation and hero section
+- [x] About section with glass-morphism card
+- [x] Features showcase section
+- [x] Call-to-action section
+- [x] Footer
 
-## Phase 2: Chat Interface
-- [x] Simplify chat page to remove external API dependencies
-- [x] Create original AI response generator
-- [x] Implement conversation flow and dialogue management
-- [x] Add thinking visualization (show reasoning process)
+## Full-Stack Upgrade
+- [x] Upgrade from static to full-stack (database, server, user auth)
+- [x] Set up tRPC procedures and database schema
+- [x] Configure Manus OAuth authentication
 
-## Phase 3: Features
-- [x] Philosophical dialogue system
-- [x] Concept exploration and explanation
-- [x] Question answering based on knowledge base
-- [x] Conversation history and persistence
+## ChatGPT Integration
+- [x] Set up OpenAI API integration through Manus LLM helper
+- [x] Create chat interface component (AIChatBox)
+- [x] Build backend tRPC procedure for chat completions
+- [x] Add chat widget to home page
+- [x] Store chat history in database
+- [ ] Test chat functionality end-to-end
 
-## Phase 4: Testing & Optimization
-- [x] Test conversation flows
-- [x] Optimize response generation
-- [x] Verify knowledge base accuracy
-- [x] Performance optimization
+## UI/UX Enhancements
+- [ ] Add sticky navigation header
+- [ ] Implement hover animations on cards and buttons
+- [ ] Add contact/newsletter form section
+- [ ] Ensure responsive design on mobile devices
 
-## Completed Features
-- [x] Dark midnight purple theme
-- [x] User authentication
-- [x] Database integration
-- [x] Home page with branding
+## Testing & Deployment
+- [ ] Write vitest tests for chat API endpoint
+- [ ] Test authentication flow
+- [ ] Verify all pages render correctly
+- [ ] Performance optimization

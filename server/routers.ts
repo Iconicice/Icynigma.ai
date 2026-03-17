@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { getChatHistory, saveChatMessage } from "./db";
-import { getOriginalAIAgent } from "./_core/original-ai";
+import { invokeLLM } from "./_core/llm";
 
 export const appRouter = router({
   system: systemRouter,
@@ -21,64 +21,48 @@ export const appRouter = router({
 
   chat: router({
     sendMessage: publicProcedure
-      .input(z.object({ 
-        message: z.string().min(1),
-      }))
+      .input(z.object({ message: z.string().min(1) }))
       .mutation(async ({ input, ctx }) => {
         if (!ctx.user) {
           throw new Error("User not authenticated");
         }
 
-        const aiAgent = getOriginalAIAgent();
-
         // Save user message
         await saveChatMessage(ctx.user.id, "user", input.message);
 
-        // Generate AI response using original agent
-        const { response, thinking } = await aiAgent.generateResponse(
-          String(ctx.user.id).toString(),
-          input.message
-        );
+        // Get chat history for context
+        const history = await getChatHistory(ctx.user.id);
+        const messages = history.map((msg) => ({
+          role: msg.role as "user" | "assistant" | "system",
+          content: msg.content,
+        }));
+
+        // Get AI response
+        const response = await invokeLLM({
+          messages: [
+            { 
+              role: "system", 
+              content: "You are a helpful assistant for Icynigma, a mysterious and elegant space. Be thoughtful, concise, and maintain the ethereal tone." 
+            },
+            ...messages,
+          ],
+        });
+
+        const aiContent = response.choices[0]?.message?.content;
+        const aiMessage = typeof aiContent === "string" ? aiContent : "I apologize, but I could not generate a response.";
 
         // Save AI response
-        await saveChatMessage(ctx.user.id, "assistant", response);
+        await saveChatMessage(ctx.user.id, "assistant", aiMessage);
 
         return {
-          message: response,
-          thinking: {
-            question: thinking.question,
-            reasoning: thinking.reasoning,
-            conclusion: thinking.conclusion,
-            confidence: thinking.confidence,
-          },
+          message: aiMessage,
         };
       }),
-
     getHistory: publicProcedure.query(async ({ ctx }) => {
       if (!ctx.user) {
         return [];
       }
       return getChatHistory(ctx.user.id);
-    }),
-
-    getConcepts: publicProcedure.query(() => {
-      const aiAgent = getOriginalAIAgent();
-      const concepts = aiAgent.getConcepts();
-      return concepts.map((c) => ({
-        id: c.id,
-        name: c.name,
-        description: c.description,
-        category: c.category,
-      }));
-    }),
-
-    clearHistory: publicProcedure.mutation(async ({ ctx }) => {
-      if (!ctx.user) {
-        throw new Error("User not authenticated");
-      }
-      const aiAgent = getOriginalAIAgent();
-      aiAgent.clearHistory(String(ctx.user.id));
-      return { success: true };
     }),
   }),
 });
