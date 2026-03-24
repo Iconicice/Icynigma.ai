@@ -34,11 +34,9 @@
 - [ ] Performance optimization
 
 
-## Ollama Integration (deepseek-r1:1.5b)
-- [x] Create Ollama API client service
-- [x] Set up backend proxy for local Ollama instance
-- [x] Update chat router to use Ollama
-- [x] Configure environment variables for Ollama URL
-- [x] Test Ollama integration
-- [x] Handle streaming responses from Ollama
-- [x] Implement error handling for Ollama connection
+## LLM Integration (Manus Built-in)
+- [x] Configure Manus LLM for philosophical AI
+- [x] Update chat router to use Manus LLM
+- [x] Implement error handling for LLM requests
+- [x] Test LLM integration
+- [x] Verify all tests passing
