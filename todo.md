@@ -32,3 +32,13 @@
 - [ ] Test authentication flow
 - [ ] Verify all pages render correctly
 - [ ] Performance optimization
+
+
+## Ollama Integration (deepseek-r1:1.5b)
+- [x] Create Ollama API client service
+- [x] Set up backend proxy for local Ollama instance
+- [x] Update chat router to use Ollama
+- [x] Configure environment variables for Ollama URL
+- [x] Test Ollama integration
+- [x] Handle streaming responses from Ollama
+- [x] Implement error handling for Ollama connection

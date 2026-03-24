@@ -23,12 +23,7 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
       <section 
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundImage: "url('/images/hero-gradient.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-accent/20 to-background"
       >
         {/* Subtle overlay for depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/20" />
