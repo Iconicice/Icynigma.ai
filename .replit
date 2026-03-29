@@ -1,0 +1,35 @@
+run = "pnpm dev"
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-23_11"
+
+[env]
+NODE_ENV = "development"
+NPM_CONFIG_LEGACY_PEER_DEPS = "true"
+
+[packager]
+language = "nodejs"
+ignoredPaths = ["node_modules", ".git", "dist", ".vite"]
+
+[packager.features]
+packageSearch = true
+guessImports = true
+
+[unitTest]
+language = "nodejs"
+
+[debugger]
+support = true
+
+[debugger.interactive]
+transport = "localhost:0"
+startCommand = ["dap-node", "--nolazy", "--inspect-publish-as=localhost", "server/_core/index.ts"]
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
