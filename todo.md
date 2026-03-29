@@ -52,3 +52,12 @@
 - [x] Add pause/resume functionality
 - [x] Test TTS across browsers
 - [x] Optimize audio performance
+
+
+## Free TTS Integration (Piper + Web Speech API Fallback)
+- [x] Create unified TTS service with Piper support
+- [x] Implement Web Speech API fallback
+- [x] Add Piper voice selection
+- [x] Configure Piper endpoint
+- [x] Test across all browsers
+- [x] Optimize TTS performance
