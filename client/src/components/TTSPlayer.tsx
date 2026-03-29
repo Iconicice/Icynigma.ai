@@ -1,6 +1,6 @@
 /**
  * Text-to-Speech Player Component
- * Displays audio controls for AI responses
+ * Displays audio controls for AI responses using browser Web Speech API
  */
 
 import { useState, useRef, useEffect } from 'react';
@@ -25,11 +25,9 @@ type VoiceType = 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
 export function TTSPlayer({ text, onSynthesizing }: TTSPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSynthesizing, setIsSynthesizing] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [voice, setVoice] = useState<VoiceType>('nova');
   const [speed, setSpeed] = useState(1.0);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isSupported, setIsSupported] = useState(true);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const voices: { id: VoiceType; name: string }[] = [
     { id: 'alloy', name: 'Alloy' },
@@ -49,74 +47,87 @@ export function TTSPlayer({ text, onSynthesizing }: TTSPlayerProps) {
     { value: 2.0, label: '2.0x' },
   ];
 
-  // Handle audio metadata loaded
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
-    }
-  };
-
-  // Handle audio time update
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-    }
-  };
-
-  // Handle audio ended
-  const handleEnded = () => {
-    setIsPlaying(false);
-    setCurrentTime(0);
-  };
-
-  // Format time display
-  const formatTime = (seconds: number) => {
-    if (!seconds || isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  // Check browser support on mount
+  useEffect(() => {
+    const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+    setIsSupported(supported);
+  }, []);
 
   // Handle play/pause
-  const handlePlayPause = async () => {
-    if (!audioRef.current?.src) {
-      // Synthesize speech if not already done
-      await synthesizeSpeech();
+  const handlePlayPause = () => {
+    if (!isSupported) {
+      console.error('Speech Synthesis not supported');
+      return;
     }
 
     if (isPlaying) {
-      audioRef.current?.pause();
+      // Pause
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.pause();
+      }
       setIsPlaying(false);
     } else {
-      audioRef.current?.play();
-      setIsPlaying(true);
+      // Play or resume
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const synth = window.speechSynthesis;
+        
+        if (synth.paused) {
+          // Resume
+          synth.resume();
+          setIsPlaying(true);
+        } else {
+          // Start new speech
+          synthesizeSpeech();
+        }
+      }
     }
   };
 
   // Synthesize speech
-  const synthesizeSpeech = async () => {
-    if (isSynthesizing || !text) return;
+  const synthesizeSpeech = () => {
+    if (isSynthesizing || !text || !isSupported) return;
 
     setIsSynthesizing(true);
     onSynthesizing?.(true);
 
     try {
-      // Call TTS API (to be implemented)
-      // const response = await trpc.tts.synthesize.mutate({
-      //   text,
-      //   voice,
-      //   speed,
-      // });
-      
-      // For now, use browser's Web Speech API as fallback
+      if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+        throw new Error('Speech Synthesis requires browser environment');
+      }
+
+      const synth = window.speechSynthesis;
+
+      // Cancel any ongoing speech
+      synth.cancel();
+
+      // Create utterance
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = speed;
-      window.speechSynthesis.speak(utterance);
-      
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      // Handle speech end
+      utterance.onend = () => {
+        setIsPlaying(false);
+        setIsSynthesizing(false);
+        onSynthesizing?.(false);
+      };
+
+      // Handle errors
+      utterance.onerror = (event: SpeechSynthesisErrorEvent) => {
+        console.error('[TTS Error]', event.error);
+        setIsPlaying(false);
+        setIsSynthesizing(false);
+        onSynthesizing?.(false);
+      };
+
+      // Store reference and speak
+      utteranceRef.current = utterance;
+      synth.speak(utterance);
       setIsPlaying(true);
     } catch (error) {
       console.error('[TTS Error]', error);
-    } finally {
+      setIsPlaying(false);
       setIsSynthesizing(false);
       onSynthesizing?.(false);
     }
@@ -124,12 +135,24 @@ export function TTSPlayer({ text, onSynthesizing }: TTSPlayerProps) {
 
   // Reset playback
   const handleReset = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
     }
-    setCurrentTime(0);
     setIsPlaying(false);
+    setIsSynthesizing(false);
+    onSynthesizing?.(false);
   };
+
+  if (!isSupported) {
+    return (
+      <div className="w-full rounded-lg border border-border/30 bg-card/50 p-4 backdrop-blur-sm">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Volume2 className="h-4 w-4" />
+          <span>Text-to-speech is not supported in your browser</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-3 rounded-lg border border-border/30 bg-card/50 p-4 backdrop-blur-sm">
@@ -141,34 +164,19 @@ export function TTSPlayer({ text, onSynthesizing }: TTSPlayerProps) {
 
       {/* Controls */}
       <div className="space-y-3">
-        {/* Voice and Speed Selection */}
-        <div className="grid grid-cols-2 gap-2">
-          <Select value={voice} onValueChange={(v) => setVoice(v as VoiceType)}>
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {voices.map((v) => (
-                <SelectItem key={v.id} value={v.id}>
-                  {v.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={speed.toString()} onValueChange={(v) => setSpeed(parseFloat(v))}>
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {speeds.map((s) => (
-                <SelectItem key={s.value} value={s.value.toString()}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Speed Selection */}
+        <Select value={speed.toString()} onValueChange={(v) => setSpeed(parseFloat(v))}>
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {speeds.map((s) => (
+              <SelectItem key={s.value} value={s.value.toString()}>
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         {/* Playback Controls */}
         <div className="flex items-center gap-2">
@@ -197,31 +205,9 @@ export function TTSPlayer({ text, onSynthesizing }: TTSPlayerProps) {
           </Button>
 
           <div className="flex-1 text-xs text-secondary-foreground">
-            {formatTime(currentTime)} / {formatTime(duration)}
+            {isPlaying ? 'Playing...' : 'Ready'}
           </div>
         </div>
-
-        {/* Progress Bar */}
-        <Slider
-          value={[currentTime]}
-          max={duration || 100}
-          step={0.1}
-          onValueChange={(v) => {
-            if (audioRef.current) {
-              audioRef.current.currentTime = v[0];
-            }
-          }}
-          className="h-1"
-        />
-
-        {/* Hidden Audio Element */}
-        <audio
-          ref={audioRef}
-          onLoadedMetadata={handleLoadedMetadata}
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={handleEnded}
-          className="hidden"
-        />
       </div>
 
       {/* Status */}
