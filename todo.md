@@ -40,3 +40,15 @@
 - [x] Implement error handling for LLM requests
 - [x] Test LLM integration
 - [x] Verify all tests passing
+
+
+## Text-to-Speech Feature
+- [x] Create TTS service using Web Speech API
+- [x] Build TTS API endpoint in backend
+- [x] Create TTS UI component with playback controls
+- [x] Add voice selection dropdown
+- [x] Implement speed adjustment slider
+- [x] Integrate TTS into chat messages
+- [x] Add pause/resume functionality
+- [x] Test TTS across browsers
+- [x] Optimize audio performance

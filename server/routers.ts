@@ -5,6 +5,7 @@ import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { getChatHistory, saveChatMessage } from "./db";
 import { invokeLLM } from "./_core/llm";
+import { ttsRouter } from "./routers-tts";
 
 export const appRouter = router({
   system: systemRouter,
@@ -18,6 +19,8 @@ export const appRouter = router({
       } as const;
     }),
   }),
+
+  tts: ttsRouter,
 
   chat: router({
     sendMessage: publicProcedure
