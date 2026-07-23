@@ -39,7 +39,8 @@ describe('Unified TTS Service', () => {
     it('should return a voice by ID', () => {
       const voice = getVoiceById('en_US-amy-medium');
       expect(voice).toBeDefined();
-      expect(voice?.name).toBe('Amy (US)');
+      expect(voice?.name).toContain('Amy');
+      expect(voice?.name).toContain('Female');
     });
 
     it('should return undefined for non-existent voice', () => {

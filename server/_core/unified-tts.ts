@@ -31,14 +31,24 @@ export interface TTSResponse {
 
 /**
  * Available Piper voices (free, open-source)
- * These are high-quality neural voices
+ * These are high-quality neural voices with diverse characteristics
  */
 const PIPER_VOICES: TTSVoice[] = [
-  { id: 'en_US-amy-medium', name: 'Amy (US)', language: 'en-US', provider: 'piper' },
-  { id: 'en_US-libritts-high', name: 'LibriTTS (US)', language: 'en-US', provider: 'piper' },
-  { id: 'en_US-glow-tts', name: 'Glow TTS (US)', language: 'en-US', provider: 'piper' },
-  { id: 'en_GB-alba-medium', name: 'Alba (UK)', language: 'en-GB', provider: 'piper' },
-  { id: 'en_GB-jenny-medium', name: 'Jenny (UK)', language: 'en-GB', provider: 'piper' },
+  // US English - Female Voices
+  { id: 'en_US-amy-medium', name: 'Amy (US, Female, Warm)', language: 'en-US', provider: 'piper' },
+  { id: 'en_US-libritts-high', name: 'LibriTTS (US, Female, Clear)', language: 'en-US', provider: 'piper' },
+  { id: 'en_US-glow-tts', name: 'Glow TTS (US, Female, Natural)', language: 'en-US', provider: 'piper' },
+  
+  // UK English - Diverse Voices
+  { id: 'en_GB-alba-medium', name: 'Alba (UK, Female, Formal)', language: 'en-GB', provider: 'piper' },
+  { id: 'en_GB-jenny-medium', name: 'Jenny (UK, Female, Friendly)', language: 'en-GB', provider: 'piper' },
+  { id: 'en_GB-alan-medium', name: 'Alan (UK, Male, Deep)', language: 'en-GB', provider: 'piper' },
+  { id: 'en_GB-thomas-medium', name: 'Thomas (UK, Male, Calm)', language: 'en-GB', provider: 'piper' },
+  
+  // US English - Male Voices
+  { id: 'en_US-joe-medium', name: 'Joe (US, Male, Energetic)', language: 'en-US', provider: 'piper' },
+  { id: 'en_US-ryan-medium', name: 'Ryan (US, Male, Smooth)', language: 'en-US', provider: 'piper' },
+  { id: 'en_US-lessac-medium', name: 'Lessac (US, Male, Professional)', language: 'en-US', provider: 'piper' },
 ];
 
 /**

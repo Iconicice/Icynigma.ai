@@ -1,10 +1,10 @@
 /**
  * Text-to-Speech Player Component
- * Supports both Piper TTS (free, open-source) and Web Speech API (browser fallback)
+ * Clean, modern UI with diverse voice selection
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Volume2, Play, Pause, RotateCcw } from 'lucide-react';
+import { Volume2, Play, Pause, RotateCcw, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 
 interface TTSPlayerProps {
   text: string;
@@ -25,8 +26,28 @@ export function TTSPlayer({ text, onSynthesizing }: TTSPlayerProps) {
   const [speed, setSpeed] = useState(1.0);
   const [isSupported, setIsSupported] = useState(true);
   const [provider, setProvider] = useState<'piper' | 'webspeech'>('webspeech');
+  const [selectedVoice, setSelectedVoice] = useState('en_US-amy-medium');
+  const [isExpanded, setIsExpanded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const voices = [
+    // US English - Female Voices
+    { id: 'en_US-amy-medium', name: 'Amy', category: 'US Female', tone: 'Warm' },
+    { id: 'en_US-libritts-high', name: 'LibriTTS', category: 'US Female', tone: 'Clear' },
+    { id: 'en_US-glow-tts', name: 'Glow', category: 'US Female', tone: 'Natural' },
+    
+    // UK English - Diverse Voices
+    { id: 'en_GB-alba-medium', name: 'Alba', category: 'UK Female', tone: 'Formal' },
+    { id: 'en_GB-jenny-medium', name: 'Jenny', category: 'UK Female', tone: 'Friendly' },
+    { id: 'en_GB-alan-medium', name: 'Alan', category: 'UK Male', tone: 'Deep' },
+    { id: 'en_GB-thomas-medium', name: 'Thomas', category: 'UK Male', tone: 'Calm' },
+    
+    // US English - Male Voices
+    { id: 'en_US-joe-medium', name: 'Joe', category: 'US Male', tone: 'Energetic' },
+    { id: 'en_US-ryan-medium', name: 'Ryan', category: 'US Male', tone: 'Smooth' },
+    { id: 'en_US-lessac-medium', name: 'Lessac', category: 'US Male', tone: 'Professional' },
+  ];
 
   const speeds = [
     { value: 0.5, label: '0.5x' },
@@ -145,7 +166,7 @@ export function TTSPlayer({ text, onSynthesizing }: TTSPlayerProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text,
-          voice: 'en_US-amy-medium',
+          voice: selectedVoice,
           speed,
         }),
       });
@@ -196,92 +217,128 @@ export function TTSPlayer({ text, onSynthesizing }: TTSPlayerProps) {
   };
 
   if (!isSupported) {
-    return (
-      <div className="w-full rounded-lg border border-border/30 bg-card/50 p-4 backdrop-blur-sm">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Volume2 className="h-4 w-4" />
-          <span>Text-to-speech is not supported in your browser</span>
-        </div>
-      </div>
-    );
+    return null;
   }
 
+  const currentVoice = voices.find(v => v.id === selectedVoice);
+  const currentSpeed = speeds.find(s => s.value === speed);
+
   return (
-    <div className="w-full space-y-3 rounded-lg border border-border/30 bg-card/50 p-4 backdrop-blur-sm">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <Volume2 className="h-4 w-4 text-accent" />
-        <span className="text-sm font-medium text-foreground">Listen to Response</span>
-      </div>
-
-      {/* Controls */}
-      <div className="space-y-3">
-        {/* Provider and Speed Selection */}
-        <div className="grid grid-cols-2 gap-2">
-          <Select value={provider} onValueChange={(v: any) => setProvider(v)}>
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="webspeech">Browser (Web Speech)</SelectItem>
-              <SelectItem value="piper">Piper TTS (Free)</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={speed.toString()} onValueChange={(v) => setSpeed(parseFloat(v))}>
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {speeds.map((s) => (
-                <SelectItem key={s.value} value={s.value.toString()}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Playback Controls */}
+    <div className="w-full space-y-3 rounded-lg border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-4 backdrop-blur-sm transition-all duration-300 hover:border-accent/40">
+      {/* Header with Toggle */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex w-full items-center justify-between gap-3 transition-colors hover:text-accent"
+      >
         <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handlePlayPause}
-            disabled={isSynthesizing}
-            className="h-8 w-8 p-0"
-          >
-            {isPlaying ? (
-              <Pause className="h-4 w-4" />
-            ) : (
-              <Play className="h-4 w-4" />
-            )}
-          </Button>
-
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleReset}
-            disabled={isSynthesizing}
-            className="h-8 w-8 p-0"
-          >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-
-          <div className="flex-1 text-xs text-secondary-foreground">
-            {isPlaying ? 'Playing...' : `Using ${provider === 'piper' ? 'Piper' : 'Browser'} TTS`}
-          </div>
+          <Volume2 className="h-5 w-5 text-accent" />
+          <span className="font-medium text-foreground">Listen to Response</span>
         </div>
-      </div>
+        <ChevronDown 
+          className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+        />
+      </button>
 
-      {/* Status */}
-      {isSynthesizing && (
-        <div className="text-xs text-accent animate-pulse">
-          Generating audio...
+      {/* Expanded Content */}
+      {isExpanded && (
+        <div className="space-y-4 pt-2">
+          {/* Playback Controls */}
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="default"
+              onClick={handlePlayPause}
+              disabled={isSynthesizing}
+              className="h-9 w-9 p-0"
+            >
+              {isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleReset}
+              disabled={isSynthesizing}
+              className="h-9 w-9 p-0"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+
+            <div className="flex-1 text-sm text-secondary-foreground">
+              {isSynthesizing ? (
+                <span className="animate-pulse">Generating audio...</span>
+              ) : isPlaying ? (
+                <span>Playing...</span>
+              ) : (
+                <span className="text-xs">Ready to play</span>
+              )}
+            </div>
+          </div>
+
+          {/* Voice Selection */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-secondary-foreground">Voice</label>
+            <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {voices.map((voice) => (
+                  <SelectItem key={voice.id} value={voice.id}>
+                    <div className="flex items-center gap-2">
+                      <span>{voice.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({voice.category} - {voice.tone})
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {currentVoice && (
+              <p className="text-xs text-muted-foreground">
+                {currentVoice.category} • {currentVoice.tone}
+              </p>
+            )}
+          </div>
+
+          {/* Speed Control */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-secondary-foreground">Playback Speed</label>
+              <span className="text-sm font-medium text-accent">{currentSpeed?.label || '1.0x'}</span>
+            </div>
+            <Slider
+              value={[speed]}
+              onValueChange={(value) => setSpeed(value[0])}
+              min={0.5}
+              max={2.0}
+              step={0.25}
+              className="w-full"
+            />
+          </div>
+
+          {/* Provider Selection */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-secondary-foreground">TTS Engine</label>
+            <Select value={provider} onValueChange={(v: any) => setProvider(v)}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="webspeech">Browser (Web Speech API)</SelectItem>
+                <SelectItem value="piper">Piper TTS (Free, Open-Source)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       )}
 
-      {/* Hidden Audio Element for Piper */}
+      {/* Hidden Audio Element */}
       <audio
         ref={audioRef}
         onEnded={handleAudioEnded}

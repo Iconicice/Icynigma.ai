@@ -61,3 +61,21 @@
 - [x] Configure Piper endpoint
 - [x] Test across all browsers
 - [x] Optimize TTS performance
+
+
+## UI Cleanup & Voice Expansion
+- [ ] Expand voice library with diverse options (male, female, accents)
+- [ ] Redesign TTSPlayer component UI
+- [ ] Clean up chat interface layout
+- [ ] Improve message styling and spacing
+- [ ] Add voice preview functionality
+- [ ] Optimize responsive design
+
+
+## Custom Notification System
+- [x] Create notification context and provider
+- [x] Build toast notification component
+- [x] Add notification hooks for easy usage
+- [x] Integrate with chat messages
+- [x] Add success, error, and info notifications
+- [x] Test notification system
