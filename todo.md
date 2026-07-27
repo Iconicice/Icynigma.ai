@@ -64,12 +64,12 @@
 
 
 ## UI Cleanup & Voice Expansion
-- [ ] Expand voice library with diverse options (male, female, accents)
-- [ ] Redesign TTSPlayer component UI
-- [ ] Clean up chat interface layout
-- [ ] Improve message styling and spacing
+- [x] Expand voice library with diverse options (male, female, accents)
+- [x] Redesign TTSPlayer component UI
+- [x] Clean up chat interface layout
+- [x] Improve message styling and spacing
 - [ ] Add voice preview functionality
-- [ ] Optimize responsive design
+- [x] Optimize responsive design
 
 
 ## Custom Notification System
@@ -79,3 +79,15 @@
 - [x] Integrate with chat messages
 - [x] Add success, error, and info notifications
 - [x] Test notification system
+
+
+## Typing Indicator & Manus-Style UI Redesign
+- [ ] Create typing indicator component with animation
+- [ ] Integrate typing indicator into chat messages
+- [ ] Redesign chat layout with sidebar for conversations
+- [ ] Implement dedicated conversation threads
+- [ ] Add conversation creation and management
+- [ ] Update database schema for multiple conversations
+- [ ] Implement conversation switching
+- [ ] Add conversation deletion/archiving
+- [ ] Test UI and conversation features
