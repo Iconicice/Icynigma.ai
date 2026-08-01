@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { getChatHistory, saveChatMessage } from "./db";
+import { getChatHistory, saveChatMessage, createConversation, getConversations, deleteConversation } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { ttsRouter } from "./routers-tts";
 
@@ -78,6 +78,38 @@ export const appRouter = router({
       }
       return getChatHistory(ctx.user.id);
     }),
+  }),
+
+  conversations: router({
+    list: publicProcedure.query(async ({ ctx }) => {
+      if (!ctx.user) {
+        return [];
+      }
+      return getConversations(ctx.user.id);
+    }),
+
+    create: publicProcedure
+      .input(z.object({ title: z.string().min(1).max(255).optional() }))
+      .mutation(async ({ input, ctx }) => {
+        if (!ctx.user) {
+          throw new Error("User not authenticated");
+        }
+        const conversation = await createConversation(ctx.user.id, input.title);
+        if (!conversation) {
+          throw new Error("Failed to create conversation");
+        }
+        return conversation;
+      }),
+
+    delete: publicProcedure
+      .input(z.object({ conversationId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (!ctx.user) {
+          throw new Error("User not authenticated");
+        }
+        const success = await deleteConversation(input.conversationId, ctx.user.id);
+        return { success };
+      }),
   }),
 });
 

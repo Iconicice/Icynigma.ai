@@ -2,17 +2,26 @@
  * Chat Page
  * 
  * Clean, modern chat interface for interacting with Icynigma AI assistant.
- * Features responsive design, dark theme, and integrated TTS.
+ * Features responsive design, dark theme, integrated TTS, and multi-conversation support.
  */
 
 import { useAuth } from "@/_core/hooks/useAuth";
 import { AIChatBox, type Message } from "@/components/AIChatBox";
 import { Button } from "@/components/ui/button";
+import { ChatLayout } from "@/components/ChatLayout";
+import { SettingsModal } from "@/components/SettingsModal";
 import { trpc } from "@/lib/trpc";
 import { useNotification } from "@/contexts/NotificationContext";
-import { ArrowLeft, Settings, LogOut, Trash2 } from "lucide-react";
+import { ArrowLeft, Settings, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+
+type Conversation = {
+  id: number;
+  title: string;
+  createdAt: Date;
+  messageCount?: number;
+};
 
 export default function Chat() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -20,10 +29,16 @@ export default function Chat() {
   const [, setLocation] = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
 
   // Fetch chat history on mount
   const { data: history } = trpc.chat.getHistory.useQuery();
+  const { data: conversationsList } = trpc.conversations.list.useQuery();
   const sendMessageMutation = trpc.chat.sendMessage.useMutation();
+  const createConversationMutation = trpc.conversations.create.useMutation();
+  const deleteConversationMutation = trpc.conversations.delete.useMutation();
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -31,6 +46,16 @@ export default function Chat() {
       setLocation("/");
     }
   }, [isAuthenticated, setLocation]);
+
+  // Load conversations
+  useEffect(() => {
+    if (conversationsList) {
+      setConversations(conversationsList as Conversation[]);
+      if (conversationsList.length > 0 && !activeConversationId) {
+        setActiveConversationId((conversationsList[0] as any).id);
+      }
+    }
+  }, [conversationsList, activeConversationId]);
 
   // Load chat history
   useEffect(() => {
@@ -73,6 +98,36 @@ export default function Chat() {
     }
   };
 
+  const handleNewConversation = async () => {
+    try {
+      const newConv = await createConversationMutation.mutateAsync({
+        title: `Chat ${new Date().toLocaleDateString()}`,
+      });
+      setConversations((prev) => [newConv as any, ...prev]);
+      setActiveConversationId((newConv as any).id);
+      setMessages([]);
+      success("New conversation created", "Start chatting with Icynigma");
+    } catch (error) {
+      showError("Failed to create conversation", error instanceof Error ? error.message : "Unknown error");
+    }
+  };
+
+  const handleDeleteConversation = async (id: number) => {
+    if (confirm("Delete this conversation? This cannot be undone.")) {
+      try {
+        await deleteConversationMutation.mutateAsync({ conversationId: id });
+        setConversations((prev) => prev.filter((c) => c.id !== id));
+        if (activeConversationId === id) {
+          setActiveConversationId(conversations[0]?.id || null);
+          setMessages([]);
+        }
+        success("Conversation deleted", "");
+      } catch (error) {
+        showError("Failed to delete conversation", error instanceof Error ? error.message : "Unknown error");
+      }
+    }
+  };
+
   const handleLogout = () => {
     logout();
     setLocation("/");
@@ -86,7 +141,7 @@ export default function Chat() {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95 text-foreground flex flex-col">
       {/* Header */}
       <header className="border-b border-accent/10 bg-card/30 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-full mx-auto px-4 py-3 flex items-center justify-between">
           {/* Left Section */}
           <div className="flex items-center gap-3 flex-1">
             <Button
@@ -118,6 +173,7 @@ export default function Chat() {
             <Button
               variant="ghost"
               size="icon"
+              onClick={() => setShowSettings(true)}
               className="hover:bg-accent/10 transition-colors"
             >
               <Settings className="h-4 w-4" />
@@ -134,24 +190,43 @@ export default function Chat() {
         </div>
       </header>
 
-      {/* Chat Area */}
+      {/* Chat Area with Sidebar */}
       <main className="flex-1 overflow-hidden flex flex-col">
-        <div className="max-w-4xl mx-auto h-full w-full px-4 py-4 flex flex-col">
-          <AIChatBox
-            messages={messages}
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-            placeholder="Ask Icynigma anything... (e.g., 'What is the nature of consciousness?')"
-            height="100%"
-            className="rounded-lg border border-accent/10"
-          />
-        </div>
+        <ChatLayout
+          conversations={conversations.map(c => ({
+            ...c,
+            id: c.id.toString(),
+            messageCount: messages.length || 0,
+          }))}
+          activeConversationId={activeConversationId?.toString()}
+          onSelectConversation={(id) => setActiveConversationId(parseInt(id))}
+          onNewConversation={handleNewConversation}
+          onDeleteConversation={(id) => handleDeleteConversation(parseInt(id))}
+        >
+          <div className="max-w-4xl mx-auto h-full w-full px-4 py-4 flex flex-col">
+            <AIChatBox
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              isLoading={isLoading}
+              placeholder="Ask Icynigma anything... (e.g., 'What is the nature of consciousness?')"
+              height="100%"
+              className="rounded-lg border border-accent/10"
+            />
+          </div>
+        </ChatLayout>
       </main>
 
       {/* Footer Info */}
       <footer className="border-t border-accent/10 bg-card/20 backdrop-blur-sm px-4 py-2 text-center text-xs text-muted-foreground">
         <p>Powered by Manus LLM • {user?.name || "Guest"}</p>
       </footer>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        onClearHistory={handleClearHistory}
+      />
     </div>
   );
 }

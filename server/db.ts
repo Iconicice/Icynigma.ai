@@ -136,3 +136,76 @@ export async function saveChatMessage(
     return null;
   }
 }
+
+// Conversation management functions
+import { conversations, chatMessagesV2, Conversation } from "../drizzle/schema";
+
+export async function createConversation(
+  userId: number,
+  title: string = "New Chat"
+): Promise<Conversation | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create conversation: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(conversations).values({
+      userId,
+      title,
+    });
+    const conversationId = (result as any).insertId;
+    const created = await db.select().from(conversations).where(eq(conversations.id, conversationId)).limit(1);
+    return created.length > 0 ? created[0] : null;
+  } catch (error) {
+    console.error("[Database] Failed to create conversation:", error);
+    return null;
+  }
+}
+
+export async function getConversations(userId: number): Promise<Conversation[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get conversations: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.userId, userId))
+      .orderBy(conversations.updatedAt);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get conversations:", error);
+    return [];
+  }
+}
+
+export async function deleteConversation(conversationId: number, userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete conversation: database not available");
+    return false;
+  }
+
+  try {
+    // Verify ownership before deleting
+    const conv = await db.select().from(conversations).where(eq(conversations.id, conversationId)).limit(1);
+    if (conv.length === 0 || conv[0].userId !== userId) {
+      console.warn("[Database] Unauthorized conversation deletion attempt");
+      return false;
+    }
+
+    // Delete associated messages
+    await db.delete(chatMessagesV2).where(eq(chatMessagesV2.conversationId, conversationId));
+    // Delete conversation
+    await db.delete(conversations).where(eq(conversations.id, conversationId));
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to delete conversation:", error);
+    return false;
+  }
+}

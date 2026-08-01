@@ -44,3 +44,49 @@ export const chatMessages = mysqlTable("chatMessages", {
 
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = typeof chatMessages.$inferInsert;
+
+/**
+ * Conversations table for organizing chat threads.
+ * Each conversation belongs to a user and contains multiple messages.
+ */
+export const conversations = mysqlTable("conversations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull().default("New Chat"),
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ([
+  foreignKey({
+    columns: [table.userId],
+    foreignColumns: [users.id],
+  }),
+]))
+
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = typeof conversations.$inferInsert;
+
+/**
+ * Updated chatMessages table with conversationId for thread organization.
+ * Messages now belong to specific conversations.
+ */
+export const chatMessagesV2 = mysqlTable("chatMessagesV2", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  userId: int("userId").notNull(),
+  role: mysqlEnum("role", ["user", "assistant", "system"]).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ([
+  foreignKey({
+    columns: [table.conversationId],
+    foreignColumns: [conversations.id],
+  }),
+  foreignKey({
+    columns: [table.userId],
+    foreignColumns: [users.id],
+  }),
+]))
+
+export type ChatMessageV2 = typeof chatMessagesV2.$inferSelect;
+export type InsertChatMessageV2 = typeof chatMessagesV2.$inferInsert;
