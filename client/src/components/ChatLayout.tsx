@@ -37,8 +37,8 @@ export function ChatLayout({
 
   return (
     <div className="flex h-full bg-background">
-      {/* Sidebar */}
-      <div className="w-64 border-r border-border bg-card/50 flex flex-col">
+      {/* Sidebar - Hidden on mobile */}
+      <div className="hidden md:flex w-64 border-r border-border bg-card/50 flex-col">
         {/* Header */}
         <div className="p-4 border-b border-border">
           <Button
