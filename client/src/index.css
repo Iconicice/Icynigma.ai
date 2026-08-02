@@ -4,8 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-
-
 @layer utilities {
   .animate-fadeIn {
     animation: fadeIn 0.8s ease-out forwards;
@@ -174,24 +172,11 @@
 }
 
 @layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
 
@@ -202,21 +187,22 @@
 
   @media (min-width: 640px) {
     .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-left: 1.5rem;
       padding-right: 1.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .container {
-      padding-left: 2rem; /* 32px - desktop padding */
+      padding-left: 2rem;
       padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
+      max-width: 1280px;
     }
   }
 }
+
+/* Glass-Morphism Effects */
 @layer utilities {
-  /* 3D Glass-Morphism Effects */
   .glass-effect {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -241,21 +227,8 @@
     box-shadow: 0 8px 32px 0 rgba(167, 139, 250, 0.2);
   }
 
-  /* 3D Text Effects */
   .text-3d {
-    text-shadow: 
-      0 2px 0 rgba(0, 0, 0, 0.2),
-      0 4px 0 rgba(0, 0, 0, 0.1),
-      0 6px 0 rgba(0, 0, 0, 0.05),
-      0 8px 10px rgba(0, 0, 0, 0.3);
-  }
-
-  .text-3d-light {
-    text-shadow: 
-      0 2px 0 rgba(255, 255, 255, 0.3),
-      0 4px 0 rgba(255, 255, 255, 0.2),
-      0 6px 0 rgba(255, 255, 255, 0.1),
-      0 8px 10px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2), 0 4px 0 rgba(0, 0, 0, 0.1), 0 6px 0 rgba(0, 0, 0, 0.05), 0 8px 10px rgba(0, 0, 0, 0.3);
   }
 
   .text-glass {
@@ -266,47 +239,11 @@
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   }
 
-  .text-glass-accent {
-    background: linear-gradient(135deg, rgba(167, 139, 250, 1) 0%, rgba(99, 102, 241, 0.8) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  }
-
-  /* Futuristic Font Style */
   .font-futuristic {
     font-family: 'Orbitron', monospace;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-  }
-
-  .font-modern {
-    font-family: 'Outfit', 'Poppins', sans-serif;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-  }
-
-  /* Gradient Backgrounds */
-  .bg-gradient-glass {
-    background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(99, 102, 241, 0.05) 50%, rgba(59, 130, 246, 0.1) 100%);
-  }
-
-  .bg-gradient-dark-glass {
-    background: linear-gradient(135deg, rgba(167, 139, 250, 0.05) 0%, rgba(99, 102, 241, 0.02) 50%, rgba(59, 130, 246, 0.05) 100%);
-  }
-
-  /* Smooth Transitions */
-  .transition-glass {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Hover Effects */
-  .hover-glass:hover {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.45);
   }
 
   .hover-glass-dark:hover {
@@ -315,12 +252,78 @@
     box-shadow: 0 12px 40px 0 rgba(15, 23, 42, 0.6);
   }
 
-  /* Glow Effects */
   .glow-accent {
     box-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
   }
 
-  .glow-accent-hover:hover {
-    box-shadow: 0 0 30px rgba(167, 139, 250, 0.5);
+  /* Animations */
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out;
+  }
+
+  /* Accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .focus-visible {
+    @apply focus:outline-2 focus:outline-offset-2 focus:outline-accent;
+  }
+
+  .focus-indicator {
+    @apply focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background rounded-lg;
+  }
+
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Smooth Scroll */
+  .scroll-smooth {
+    scroll-behavior: smooth;
   }
 }
