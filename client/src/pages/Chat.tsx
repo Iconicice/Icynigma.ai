@@ -9,7 +9,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { AIChatBox, type Message } from "@/components/AIChatBox";
 import { Button } from "@/components/ui/button";
 import { ChatLayout } from "@/components/ChatLayout";
-import { SettingsModal } from "@/components/SettingsModal";
+import { EnhancedSettingsModal } from "@/components/EnhancedSettingsModal";
 import { trpc } from "@/lib/trpc";
 import { useNotification } from "@/contexts/NotificationContext";
 import { ArrowLeft, Settings, LogOut } from "lucide-react";
@@ -222,7 +222,7 @@ export default function Chat() {
       </footer>
 
       {/* Settings Modal */}
-      <SettingsModal
+      <EnhancedSettingsModal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
         onClearHistory={handleClearHistory}
