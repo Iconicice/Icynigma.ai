@@ -5,7 +5,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/HomeRedesigned";
-import Chat from "./pages/ChatImproved";
+import Chat from "./pages/ChatRedesigned";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
