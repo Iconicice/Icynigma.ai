@@ -167,3 +167,13 @@ Icynigma.ai was conceived and created by Inolofatseng Mokgoko for Iconic Media E
 The chat shell uses authenticated, conversation-scoped messaging. The smart sidebar sorts threads by recent activity, groups them as **Today**, **Previous 7 days**, or **Earlier**, and lets users search titles, start a fresh thread, remove an owned thread, and explore prompts connected to the active topic. The browser voice-input feature uses the native Web Speech recognition API when it is available and preserves a complete typed-input fallback.
 
 The installed-app experience is driven by `client/public/manifest.json`, `client/public/sw.js`, and `client/src/components/InstallAppButton.tsx`. The PWA icon is a hosted derivative of the user-supplied Icynigma logo. The service worker must not be changed to cache authenticated API responses without a privacy review.
+
+## Latest Refresh: Applied Settings, Voice Services, and Public Entry Points
+
+Icynigma now uses a staged **Apply changes** workflow in its settings panel. Visitors can prepare theme, background, typography, accent color, smart or compact sidebar behavior, voice-input provider, TTS engine, and playback speed preferences before committing them locally. Light, dark, and automatic themes have visibly distinct chat-shell treatments, and older local settings are normalized safely.
+
+The application now supports authenticated server-side **ElevenLabs** synthesis and transcription. Audio for requested transcription is handled only for that request and the service key remains on the server. Piper neural speech and browser speech capabilities continue as fallbacks when a cloud speech request or recording capability is unavailable. The associated integration and fallback logic is covered by the expanded test suite.
+
+The public repository now includes a `docs/` GitHub Pages entry point at `https://iconicice.github.io/Icynigma.ai/`. It is deliberately a static project page that sends visitors to the full secure application. GitHub Pages does not execute the Express server, database, OAuth, AI model calls, or server-side voice APIs; those services remain available at `https://icynigma-xkxmkqhz.manus.space`.
+
+IME TrustPass was assessed as a potential shared login service. Its current public surface exposes its own sign-in options, but no public third-party OAuth/OpenID Connect issuer metadata or client-registration contract. A future shared sign-in rollout should use server-side OpenID Connect Authorization Code Flow with PKCE, registered redirect URIs, state and nonce validation, JWKS signature checks, audience validation, and expiry checks. Icynigma retains its existing authentication until this contract is supplied.
