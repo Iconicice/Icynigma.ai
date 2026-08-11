@@ -1,11 +1,18 @@
-import { eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import {
+  chatMessages,
+  chatMessagesV2,
+  conversations,
+  type Conversation,
+  type InsertUser,
+  users,
+} from "../drizzle/schema";
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
+// Lazily create the drizzle instance so local tooling can run without a database.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -19,58 +26,29 @@ export async function getDb() {
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
-  }
-
+  if (!user.openId) throw new Error("User openId is required for upsert");
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot upsert user: database not available");
     return;
   }
 
+  const values: InsertUser = { openId: user.openId };
+  const updateSet: Record<string, unknown> = {};
+  const textFields = ["name", "email", "loginMethod"] as const;
+  textFields.forEach((field) => {
+    if (user[field] === undefined) return;
+    const value = user[field] ?? null;
+    values[field] = value;
+    updateSet[field] = value;
+  });
+  values.lastSignedIn = user.lastSignedIn ?? new Date();
+  updateSet.lastSignedIn = values.lastSignedIn;
+  values.role = user.role ?? (user.openId === ENV.ownerOpenId ? "admin" : "user");
+  updateSet.role = values.role;
+
   try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
-    const updateSet: Record<string, unknown> = {};
-
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
-    }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
-    }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
+    await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -79,129 +57,153 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
-  }
-
+  if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
-  return result.length > 0 ? result[0] : undefined;
+  return result[0];
 }
 
-// TODO: add feature queries here as your schema grows.
-
-import { chatMessages } from "../drizzle/schema";
-
+// Legacy history helpers are retained for backwards compatibility with existing data and tests.
 export async function getChatHistory(userId: number) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get chat history: database not available");
-    return [];
-  }
-
+  if (!db) return [];
   try {
-    const result = await db
-      .select()
-      .from(chatMessages)
-      .where(eq(chatMessages.userId, userId))
-      .orderBy(chatMessages.createdAt);
-    return result;
+    return await db.select().from(chatMessages).where(eq(chatMessages.userId, userId)).orderBy(chatMessages.createdAt);
   } catch (error) {
     console.error("[Database] Failed to get chat history:", error);
     return [];
   }
 }
 
-export async function saveChatMessage(
-  userId: number,
-  role: "user" | "assistant" | "system",
-  content: string
-) {
+export async function saveChatMessage(userId: number, role: "user" | "assistant" | "system", content: string) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot save chat message: database not available");
-    return null;
-  }
-
+  if (!db) return null;
   try {
-    const result = await db.insert(chatMessages).values({
-      userId,
-      role,
-      content,
-    });
-    return result;
+    return await db.insert(chatMessages).values({ userId, role, content });
   } catch (error) {
-    console.error("[Database] Failed to save chat message:", error);
+    console.error("[Database] Failed to save legacy chat message:", error);
     return null;
   }
 }
 
-// Conversation management functions
-import { conversations, chatMessagesV2, Conversation } from "../drizzle/schema";
+export type ConversationSummary = Conversation & { messageCount: number };
 
-export async function createConversation(
-  userId: number,
-  title: string = "New Chat"
-): Promise<Conversation | null> {
+export async function createConversation(userId: number, title = "New Chat"): Promise<Conversation | null> {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot create conversation: database not available");
-    return null;
-  }
-
+  if (!db) return null;
   try {
-    const result = await db.insert(conversations).values({
-      userId,
-      title,
-    });
-    const conversationId = (result as any).insertId;
-    const created = await db.select().from(conversations).where(eq(conversations.id, conversationId)).limit(1);
-    return created.length > 0 ? created[0] : null;
+    const result = await db.insert(conversations).values({ userId, title: title.trim() || "New Chat" });
+    const header = Array.isArray(result) ? result[0] : result;
+    const id = Number((header as { insertId?: number | bigint }).insertId);
+    if (!Number.isInteger(id) || id < 1) {
+      throw new Error("Database did not return an inserted conversation ID");
+    }
+    const created = await db.select().from(conversations).where(eq(conversations.id, id)).limit(1);
+    return created[0] ?? null;
   } catch (error) {
     console.error("[Database] Failed to create conversation:", error);
     return null;
   }
 }
 
-export async function getConversations(userId: number): Promise<Conversation[]> {
+export async function getConversations(userId: number): Promise<ConversationSummary[]> {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get conversations: database not available");
-    return [];
-  }
-
+  if (!db) return [];
   try {
-    const result = await db
-      .select()
+    const rows = await db
+      .select({
+        id: conversations.id,
+        userId: conversations.userId,
+        title: conversations.title,
+        description: conversations.description,
+        createdAt: conversations.createdAt,
+        updatedAt: conversations.updatedAt,
+        messageCount: count(chatMessagesV2.id),
+      })
       .from(conversations)
+      .leftJoin(chatMessagesV2, eq(chatMessagesV2.conversationId, conversations.id))
       .where(eq(conversations.userId, userId))
-      .orderBy(conversations.updatedAt);
-    return result;
+      .groupBy(
+        conversations.id,
+        conversations.userId,
+        conversations.title,
+        conversations.description,
+        conversations.createdAt,
+        conversations.updatedAt,
+      )
+      .orderBy(desc(conversations.updatedAt));
+
+    return rows.map((row) => ({ ...row, messageCount: Number(row.messageCount) }));
   } catch (error) {
     console.error("[Database] Failed to get conversations:", error);
     return [];
   }
 }
 
-export async function deleteConversation(conversationId: number, userId: number): Promise<boolean> {
+export async function getOwnedConversation(userId: number, conversationId: number): Promise<Conversation | null> {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot delete conversation: database not available");
+  if (!db) return null;
+  try {
+    const result = await db.select().from(conversations).where(and(eq(conversations.id, conversationId), eq(conversations.userId, userId))).limit(1);
+    return result[0] ?? null;
+  } catch (error) {
+    console.error("[Database] Failed to verify conversation ownership:", error);
+    return null;
+  }
+}
+
+export async function getConversationHistory(userId: number, conversationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db
+      .select()
+      .from(chatMessagesV2)
+      .where(and(eq(chatMessagesV2.userId, userId), eq(chatMessagesV2.conversationId, conversationId)))
+      .orderBy(chatMessagesV2.createdAt);
+  } catch (error) {
+    console.error("[Database] Failed to get conversation history:", error);
+    return [];
+  }
+}
+
+export async function saveConversationMessage(
+  userId: number,
+  conversationId: number,
+  role: "user" | "assistant" | "system",
+  content: string,
+) {
+  const db = await getDb();
+  if (!db) return null;
+  try {
+    const result = await db.insert(chatMessagesV2).values({ userId, conversationId, role, content });
+    await db.update(conversations).set({ updatedAt: new Date() }).where(and(eq(conversations.id, conversationId), eq(conversations.userId, userId)));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to save conversation message:", error);
+    return null;
+  }
+}
+
+export async function clearConversationMessages(conversationId: number, userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  try {
+    await db.delete(chatMessagesV2).where(and(eq(chatMessagesV2.conversationId, conversationId), eq(chatMessagesV2.userId, userId)));
+    await db.update(conversations).set({ updatedAt: new Date() }).where(and(eq(conversations.id, conversationId), eq(conversations.userId, userId)));
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to clear conversation messages:", error);
     return false;
   }
+}
 
+export async function deleteConversation(conversationId: number, userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
   try {
-    // Verify ownership before deleting
-    const conv = await db.select().from(conversations).where(eq(conversations.id, conversationId)).limit(1);
-    if (conv.length === 0 || conv[0].userId !== userId) {
-      console.warn("[Database] Unauthorized conversation deletion attempt");
-      return false;
-    }
-
-    // Delete associated messages
+    const conversation = await db.select().from(conversations).where(and(eq(conversations.id, conversationId), eq(conversations.userId, userId))).limit(1);
+    if (!conversation[0]) return false;
     await db.delete(chatMessagesV2).where(eq(chatMessagesV2.conversationId, conversationId));
-    // Delete conversation
     await db.delete(conversations).where(eq(conversations.id, conversationId));
     return true;
   } catch (error) {

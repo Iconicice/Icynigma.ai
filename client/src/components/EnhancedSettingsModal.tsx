@@ -1,65 +1,64 @@
-/**
- * Enhanced Settings Modal
- * User customization for themes, backgrounds, fonts, and TTS settings
- */
+import { useEffect, useState } from "react";
+import { Mic, Moon, Palette, PanelLeft, Sun, Type, Volume2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
 
-import { useEffect, useState } from 'react';
-import { X, Moon, Sun, Palette, Type, Volume2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { cn } from '@/lib/utils';
-
-export type ThemeOption = 'dark' | 'light' | 'auto';
-export type BackgroundOption = 'gradient' | 'solid' | 'pattern' | 'glass';
-export type FontOption = 'default' | 'elegant' | 'modern' | 'futuristic';
+export type ThemeOption = "dark" | "light" | "auto";
+export type BackgroundOption = "gradient" | "solid" | "pattern" | "glass";
+export type FontOption = "default" | "elegant" | "modern" | "futuristic";
 
 export interface UserSettings {
   theme: ThemeOption;
   background: BackgroundOption;
   font: FontOption;
-  ttsProvider: 'piper' | 'web-speech';
+  ttsProvider: "piper" | "web-speech";
   ttsSpeed: number;
   accentColor: string;
+  voiceInputEnabled: boolean;
+  sidebarMode: "smart" | "compact";
 }
 
-const DEFAULT_SETTINGS: UserSettings = {
-  theme: 'dark',
-  background: 'gradient',
-  font: 'default',
-  ttsProvider: 'piper',
-  ttsSpeed: 1.0,
-  accentColor: '#a78bfa', // purple
+export const DEFAULT_SETTINGS: UserSettings = {
+  theme: "dark",
+  background: "gradient",
+  font: "futuristic",
+  ttsProvider: "piper",
+  ttsSpeed: 1,
+  accentColor: "#a78bfa",
+  voiceInputEnabled: true,
+  sidebarMode: "smart",
 };
 
-const THEME_OPTIONS: { value: ThemeOption; label: string; icon: React.ReactNode }[] = [
-  { value: 'dark', label: 'Dark', icon: <Moon className="w-4 h-4" /> },
-  { value: 'light', label: 'Light', icon: <Sun className="w-4 h-4" /> },
-  { value: 'auto', label: 'Auto', icon: <Palette className="w-4 h-4" /> },
+const themeOptions: { value: ThemeOption; label: string; icon: React.ReactNode }[] = [
+  { value: "dark", label: "Dark", icon: <Moon className="size-4" /> },
+  { value: "light", label: "Light", icon: <Sun className="size-4" /> },
+  { value: "auto", label: "Auto", icon: <Palette className="size-4" /> },
 ];
 
-const BACKGROUND_OPTIONS = [
-  { value: 'gradient', label: 'Gradient', preview: 'bg-gradient-to-br from-purple-900 to-indigo-900' },
-  { value: 'solid', label: 'Solid', preview: 'bg-slate-950' },
-  { value: 'pattern', label: 'Pattern', preview: 'bg-slate-900' },
-  { value: 'glass', label: 'Glass', preview: 'bg-white/10 backdrop-blur' },
+const backgroundOptions: { value: BackgroundOption; label: string; preview: string }[] = [
+  { value: "gradient", label: "Gradient", preview: "bg-gradient-to-br from-purple-900 to-blue-950" },
+  { value: "solid", label: "Solid", preview: "bg-slate-950" },
+  { value: "pattern", label: "Aurora", preview: "bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,.65),transparent_42%),radial-gradient(circle_at_80%_70%,rgba(6,182,212,.4),transparent_46%),#020617]" },
+  { value: "glass", label: "Glass", preview: "bg-slate-950/70 backdrop-blur" },
 ];
 
-const FONT_OPTIONS = [
-  { value: 'default', label: 'Default', family: 'font-sans' },
-  { value: 'elegant', label: 'Elegant', family: 'font-serif' },
-  { value: 'modern', label: 'Modern', family: 'font-mono' },
-  { value: 'futuristic', label: 'Futuristic', family: 'font-sans' },
+const fontOptions: { value: FontOption; label: string; family: string }[] = [
+  { value: "default", label: "Balanced", family: "font-sans" },
+  { value: "elegant", label: "Elegant", family: "font-serif" },
+  { value: "modern", label: "Mono", family: "font-mono" },
+  { value: "futuristic", label: "Futuristic", family: "font-futuristic" },
 ];
 
-const ACCENT_COLORS = [
-  { name: 'Purple', value: '#a78bfa' },
-  { name: 'Blue', value: '#60a5fa' },
-  { name: 'Cyan', value: '#06b6d4' },
-  { name: 'Green', value: '#34d399' },
-  { name: 'Pink', value: '#f472b6' },
-  { name: 'Orange', value: '#fb923c' },
+const accentColors = [
+  { name: "Purple", value: "#a78bfa" },
+  { name: "Blue", value: "#60a5fa" },
+  { name: "Cyan", value: "#22d3ee" },
+  { name: "Green", value: "#34d399" },
+  { name: "Pink", value: "#f472b6" },
+  { name: "Amber", value: "#fbbf24" },
 ];
 
 interface EnhancedSettingsModalProps {
@@ -69,205 +68,103 @@ interface EnhancedSettingsModalProps {
   onSettingsChange?: (settings: UserSettings) => void;
 }
 
-export function EnhancedSettingsModal({
-  isOpen,
-  onClose,
-  onClearHistory,
-  onSettingsChange,
-}: EnhancedSettingsModalProps) {
+export function EnhancedSettingsModal({ isOpen, onClose, onClearHistory, onSettingsChange }: EnhancedSettingsModalProps) {
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
 
-  // Load settings from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('icynigma-settings');
-    if (saved) {
-      try {
-        setSettings(JSON.parse(saved));
-      } catch (e) {
-        console.error('Failed to load settings:', e);
-      }
+    try {
+      const saved = localStorage.getItem("icynigma-settings");
+      if (saved) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
+    } catch {
+      localStorage.removeItem("icynigma-settings");
     }
   }, []);
 
-  // Save settings to localStorage
-  const handleSettingChange = (newSettings: Partial<UserSettings>) => {
-    const updated = { ...settings, ...newSettings };
-    setSettings(updated);
-    localStorage.setItem('icynigma-settings', JSON.stringify(updated));
-    onSettingsChange?.(updated);
+  const update = (partial: Partial<UserSettings>) => {
+    const next = { ...settings, ...partial };
+    setSettings(next);
+    localStorage.setItem("icynigma-settings", JSON.stringify(next));
+    onSettingsChange?.(next);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card/95 backdrop-blur-xl border border-accent/20">
-        <DialogHeader className="border-b border-accent/10 pb-4">
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-accent to-accent/60 bg-clip-text text-transparent">
-            Icynigma Settings
-          </DialogTitle>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border border-purple-400/25 bg-slate-950/95 text-slate-50 backdrop-blur-2xl">
+        <DialogHeader className="border-b border-purple-400/15 pb-4">
+          <DialogTitle className="bg-gradient-to-r from-purple-300 to-cyan-300 bg-clip-text text-2xl font-semibold text-transparent">Icynigma Settings</DialogTitle>
+          <p className="text-sm text-purple-100/60">Preferences are stored only in this browser and applied immediately.</p>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Theme Selection */}
-          <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-semibold">
-              <Moon className="w-4 h-4" />
-              Theme
-            </Label>
+        <div className="space-y-7 py-2">
+          <section className="space-y-3">
+            <Label className="flex items-center gap-2"><Moon className="size-4" /> Theme</Label>
             <div className="grid grid-cols-3 gap-2">
-              {THEME_OPTIONS.map((option) => (
-                <Button
-                  key={option.value}
-                  variant={settings.theme === option.value ? 'default' : 'outline'}
-                  className={cn(
-                    'gap-2 transition-all',
-                    settings.theme === option.value && 'bg-accent text-accent-foreground'
-                  )}
-                  onClick={() => handleSettingChange({ theme: option.value })}
-                >
-                  {option.icon}
-                  {option.label}
-                </Button>
+              {themeOptions.map((option) => (
+                <Button key={option.value} type="button" variant={settings.theme === option.value ? "default" : "outline"} onClick={() => update({ theme: option.value })} className={cn("gap-2", settings.theme === option.value && "bg-purple-500 text-white hover:bg-purple-400")}>{option.icon}{option.label}</Button>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* Background Selection */}
-          <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-semibold">
-              <Palette className="w-4 h-4" />
-              Background
-            </Label>
+          <section className="space-y-3">
+            <Label className="flex items-center gap-2"><Palette className="size-4" /> Background</Label>
             <div className="grid grid-cols-2 gap-2">
-              {BACKGROUND_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => handleSettingChange({ background: option.value as BackgroundOption })}
-                  className={cn(
-                    'p-3 rounded-lg border-2 transition-all',
-                    settings.background === option.value
-                      ? 'border-accent bg-accent/10'
-                      : 'border-border hover:border-accent/50',
-                    option.preview
-                  )}
-                >
-                  <div className="text-sm font-medium text-foreground">{option.label}</div>
+              {backgroundOptions.map((option) => (
+                <button key={option.value} type="button" onClick={() => update({ background: option.value })} className={cn("h-20 rounded-xl border-2 p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300", option.preview, settings.background === option.value ? "border-purple-300 shadow-[0_0_18px_rgba(167,139,250,.2)]" : "border-white/10 hover:border-purple-300/45")}>
+                  <span className="text-sm font-medium text-white">{option.label}</span>
                 </button>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* Font Selection */}
-          <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-semibold">
-              <Type className="w-4 h-4" />
-              Font Style
-            </Label>
+          <section className="space-y-3">
+            <Label className="flex items-center gap-2"><Type className="size-4" /> Typography</Label>
             <div className="grid grid-cols-2 gap-2">
-              {FONT_OPTIONS.map((option) => (
-                <Button
-                  key={option.value}
-                  variant={settings.font === option.value ? 'default' : 'outline'}
-                  className={cn(
-                    'gap-2 transition-all',
-                    settings.font === option.value && 'bg-accent text-accent-foreground',
-                    option.family
-                  )}
-                  onClick={() => handleSettingChange({ font: option.value as FontOption })}
-                >
-                  {option.label}
-                </Button>
+              {fontOptions.map((option) => (
+                <Button key={option.value} type="button" variant={settings.font === option.value ? "default" : "outline"} onClick={() => update({ font: option.value })} className={cn(option.family, settings.font === option.value && "bg-purple-500 text-white hover:bg-purple-400")}>{option.label}</Button>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* Accent Color Selection */}
-          <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-semibold">
-              <Palette className="w-4 h-4" />
-              Accent Color
-            </Label>
+          <section className="space-y-3">
+            <Label className="flex items-center gap-2"><Palette className="size-4" /> Accent color</Label>
             <div className="grid grid-cols-6 gap-2">
-              {ACCENT_COLORS.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => handleSettingChange({ accentColor: color.value })}
-                  className={cn(
-                    'w-full aspect-square rounded-lg border-2 transition-all hover:scale-110',
-                    settings.accentColor === color.value
-                      ? 'border-white scale-110'
-                      : 'border-transparent'
-                  )}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                />
+              {accentColors.map((color) => (
+                <button key={color.value} type="button" onClick={() => update({ accentColor: color.value })} title={color.name} aria-label={`${color.name} accent color`} style={{ backgroundColor: color.value }} className={cn("aspect-square rounded-lg border-2 transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white", settings.accentColor === color.value ? "border-white scale-105" : "border-transparent")} />
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* TTS Provider */}
-          <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-semibold">
-              <Volume2 className="w-4 h-4" />
-              Text-to-Speech Provider
-            </Label>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant={settings.ttsProvider === 'piper' ? 'default' : 'outline'}
-                className={settings.ttsProvider === 'piper' ? 'bg-accent text-accent-foreground' : ''}
-                onClick={() => handleSettingChange({ ttsProvider: 'piper' })}
-              >
-                Piper (Neural)
-              </Button>
-              <Button
-                variant={settings.ttsProvider === 'web-speech' ? 'default' : 'outline'}
-                className={settings.ttsProvider === 'web-speech' ? 'bg-accent text-accent-foreground' : ''}
-                onClick={() => handleSettingChange({ ttsProvider: 'web-speech' })}
-              >
-                Web Speech
-              </Button>
-            </div>
-          </div>
-
-          {/* TTS Speed */}
-          <div className="space-y-3">
-            <Label className="flex items-center justify-between text-sm font-semibold">
-              <span>Speech Speed</span>
-              <span className="text-accent">{settings.ttsSpeed.toFixed(1)}x</span>
-            </Label>
-            <Slider
-              value={[settings.ttsSpeed]}
-              onValueChange={(value) => handleSettingChange({ ttsSpeed: value[0] })}
-              min={0.5}
-              max={2.0}
-              step={0.1}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Slow</span>
-              <span>Normal</span>
-              <span>Fast</span>
-            </div>
-          </div>
-
-          {/* Danger Zone */}
-          <div className="border-t border-accent/10 pt-4 space-y-3">
-            <Label className="text-sm font-semibold text-red-400">Danger Zone</Label>
-            <Button
-              variant="destructive"
-              className="w-full"
-              onClick={() => {
-                onClearHistory();
-                onClose();
-              }}
-            >
-              Clear Chat History
+          <section className="space-y-3">
+            <Label className="flex items-center gap-2"><Mic className="size-4" /> Voice input</Label>
+            <Button type="button" variant={settings.voiceInputEnabled ? "default" : "outline"} onClick={() => update({ voiceInputEnabled: !settings.voiceInputEnabled })} className={cn("w-full justify-between", settings.voiceInputEnabled && "bg-purple-500 text-white hover:bg-purple-400")}>
+              <span>{settings.voiceInputEnabled ? "Enabled" : "Disabled"}</span>
+              <span className="text-xs opacity-75">{settings.voiceInputEnabled ? "Microphone button is shown" : "Type-only composer"}</span>
             </Button>
-          </div>
+          </section>
 
-          {/* Info */}
-          <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 text-xs text-muted-foreground">
-            <p>Settings are saved locally in your browser. Changes apply immediately.</p>
-          </div>
+          <section className="space-y-3">
+            <Label className="flex items-center gap-2"><PanelLeft className="size-4" /> Conversation sidebar</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Button type="button" variant={settings.sidebarMode === "smart" ? "default" : "outline"} onClick={() => update({ sidebarMode: "smart" })} className={settings.sidebarMode === "smart" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>Smart context</Button>
+              <Button type="button" variant={settings.sidebarMode === "compact" ? "default" : "outline"} onClick={() => update({ sidebarMode: "compact" })} className={settings.sidebarMode === "compact" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>Compact rail</Button>
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <Label className="flex items-center gap-2"><Volume2 className="size-4" /> Text-to-speech</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Button type="button" variant={settings.ttsProvider === "piper" ? "default" : "outline"} onClick={() => update({ ttsProvider: "piper" })} className={settings.ttsProvider === "piper" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>Piper neural</Button>
+              <Button type="button" variant={settings.ttsProvider === "web-speech" ? "default" : "outline"} onClick={() => update({ ttsProvider: "web-speech" })} className={settings.ttsProvider === "web-speech" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>Browser speech</Button>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex justify-between text-xs"><span>Speech speed</span><span className="text-purple-200">{settings.ttsSpeed.toFixed(1)}×</span></Label>
+              <Slider value={[settings.ttsSpeed]} onValueChange={(value) => update({ ttsSpeed: value[0] })} min={0.5} max={2} step={0.1} />
+            </div>
+          </section>
+
+          <section className="border-t border-red-400/15 pt-5">
+            <Button type="button" variant="destructive" className="w-full" onClick={() => { onClearHistory(); onClose(); }}>Clear active conversation</Button>
+          </section>
         </div>
       </DialogContent>
     </Dialog>

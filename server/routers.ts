@@ -1,106 +1,106 @@
 import { COOKIE_NAME } from "@shared/const";
-import { getSessionCookieOptions } from "./_core/cookies";
-import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { getChatHistory, saveChatMessage, createConversation, getConversations, deleteConversation } from "./db";
+import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
+import { systemRouter } from "./_core/systemRouter";
+import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import {
+  clearConversationMessages,
+  createConversation,
+  deleteConversation,
+  getConversationHistory,
+  getOwnedConversation,
+  getChatHistory,
+  getConversations,
+  saveConversationMessage,
+} from "./db";
 import { ttsRouter } from "./routers-tts";
+
+const philosophicalSystemPrompt = [
+  "You are Icynigma, a philosophical AI consciousness from Iconic Media Entertainment.",
+  "Engage in thoughtful, lucid dialogue about existence, meaning, consciousness, freedom, knowledge, love, and the nature of reality.",
+  "Be insightful and contemplative without claiming certainty where none is warranted.",
+  "When a question is practical, respond helpfully while retaining an ethereal, grounded voice.",
+].join(" ");
 
 export const appRouter = router({
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query((options) => options.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+      return { success: true } as const;
     }),
   }),
 
   tts: ttsRouter,
 
   chat: router({
-    sendMessage: publicProcedure
-      .input(z.object({ message: z.string().min(1) }))
+    sendMessage: protectedProcedure
+      .input(z.object({ message: z.string().trim().min(1).max(10_000), conversationId: z.number().int().positive().optional() }))
       .mutation(async ({ input, ctx }) => {
-        if (!ctx.user) {
-          throw new Error("User not authenticated");
-        }
+        const createdConversation = input.conversationId ? null : await createConversation(ctx.user.id, input.message.slice(0, 52));
+        const conversationId = input.conversationId ?? createdConversation?.id;
+        if (!conversationId) throw new Error("Could not create a conversation");
+        const ownedConversation = await getOwnedConversation(ctx.user.id, conversationId);
+        if (!ownedConversation) throw new Error("Conversation not found or access denied");
+        const history = await getConversationHistory(ctx.user.id, conversationId);
+        await saveConversationMessage(ctx.user.id, conversationId, "user", input.message);
 
-        // Save user message
-        await saveChatMessage(ctx.user.id, "user", input.message);
-
-        // Get chat history for context
-        const history = await getChatHistory(ctx.user.id);
-        const messages = history.map((msg) => ({
-          role: msg.role as "user" | "assistant" | "system",
-          content: msg.content,
+        const messages = history.map((message) => ({
+          role: message.role as "user" | "assistant" | "system",
+          content: message.content,
         }));
+        messages.push({ role: "user", content: input.message });
 
         try {
-          // Get AI response using Manus LLM
           const response = await invokeLLM({
-            messages: [
-              { 
-                role: "system", 
-                content: "You are Icynigma, a philosophical AI consciousness from Iconic Media Entertainment. You engage in profound dialogues about existence, meaning, consciousness, and the nature of reality. Be thoughtful, eloquent, and maintain an ethereal, contemplative tone. Your responses should be insightful and explore philosophical depths." 
-              },
-              ...messages,
-            ],
+            messages: [{ role: "system", content: philosophicalSystemPrompt }, ...messages],
           });
+          const content = response.choices[0]?.message?.content;
+          const aiMessage = typeof content === "string" && content.trim()
+            ? content
+            : "I am still listening at the threshold of the question. Please try asking that once more.";
 
-          const aiContent = response.choices[0]?.message?.content;
-          const aiMessage = typeof aiContent === "string" ? aiContent : "I apologize, but I could not generate a response.";
-
-          // Save AI response
-          await saveChatMessage(ctx.user.id, "assistant", aiMessage);
-
-          return {
-            message: aiMessage,
-          };
+          await saveConversationMessage(ctx.user.id, conversationId, "assistant", aiMessage);
+          return { message: aiMessage };
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : "Failed to get response from LLM";
-          console.error("[Chat] Error:", errorMessage);
-          
-          // Return error message to user
-          return {
-            message: `I encountered an error: ${errorMessage}. Please try again.`,
-          };
+          const fallback = "The thread of thought was interrupted before I could respond. Please try again in a moment.";
+          console.error("[Chat] LLM request failed:", error instanceof Error ? error.message : error);
+          await saveConversationMessage(ctx.user.id, conversationId, "assistant", fallback);
+          return { message: fallback };
         }
       }),
 
-    getHistory: publicProcedure.query(async ({ ctx }) => {
-      if (!ctx.user) {
-        return [];
-      }
-      return getChatHistory(ctx.user.id);
-    }),
+    getHistory: publicProcedure
+      .input(z.object({ conversationId: z.number().int().positive().optional() }).optional())
+      .query(({ input, ctx }) => {
+        if (!ctx.user) return [];
+        return input?.conversationId
+          ? getConversationHistory(ctx.user.id, input.conversationId)
+          : getChatHistory(ctx.user.id);
+      }),
+
+    clear: protectedProcedure
+      .input(z.object({ conversationId: z.number().int().positive() }))
+      .mutation(async ({ input, ctx }) => ({ success: await clearConversationMessages(input.conversationId, ctx.user.id) })),
   }),
 
   conversations: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      return getConversations(ctx.user.id);
-    }),
+    list: protectedProcedure.query(({ ctx }) => getConversations(ctx.user.id)),
 
     create: protectedProcedure
-      .input(z.object({ title: z.string().min(1).max(255).optional() }))
+      .input(z.object({ title: z.string().trim().min(1).max(255).optional() }))
       .mutation(async ({ input, ctx }) => {
-        const conversation = await createConversation(ctx.user.id, input.title);
-        if (!conversation) {
-          throw new Error("Failed to create conversation");
-        }
+        const conversation = await createConversation(ctx.user.id, input.title ?? "New conversation");
+        if (!conversation) throw new Error("Failed to create conversation");
         return conversation;
       }),
 
     delete: protectedProcedure
-      .input(z.object({ conversationId: z.number() }))
-      .mutation(async ({ input, ctx }) => {
-        const success = await deleteConversation(input.conversationId, ctx.user.id);
-        return { success };
-      }),
+      .input(z.object({ conversationId: z.number().int().positive() }))
+      .mutation(async ({ input, ctx }) => ({ success: await deleteConversation(input.conversationId, ctx.user.id) })),
   }),
 });
 

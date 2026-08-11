@@ -350,3 +350,17 @@ Built with:
 **Made with ❤️ by the Manus team**
 
 **Ready to chat? [Start Icynigma.ai now!](https://icynigma.ai)**
+
+## Creator
+
+**Icynigma.ai was created by Inolofatseng Mokgoko.**
+
+## Latest Refinement Pass
+
+The current release adds a **smart conversation sidebar** with search, time-based thread groups, active-context guidance, adaptive philosophical prompts, and a mobile drawer. Chat messages are now stored and retrieved by conversation thread, so one discussion does not leak into another thread.
+
+The composer now supports **browser voice input** with clear microphone-permission, listening, transcript, and unsupported-browser states. Users can control voice input, sidebar density, theme, background, accent color, font treatment, text-to-speech provider, and playback speed through Settings; those choices remain local to their browser.
+
+Icynigma is installable as a **Progressive Web App**. Its manifest, browser favicon, Apple touch icon, and installation metadata use the supplied Icynigma logo. The service worker caches the application shell and public runtime assets while deliberately avoiding caches for private API, authentication, conversation, and speech responses.
+
+For faster initial chat rendering, rich markdown and diagram support is now loaded only when an assistant message needs it rather than in the initial chat shell.

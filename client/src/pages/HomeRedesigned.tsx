@@ -5,6 +5,7 @@
 
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { InstallAppButton } from "@/components/InstallAppButton";
 import { getLoginUrl } from "@/const";
 import { ArrowRight, Sparkles, Brain, Zap } from "lucide-react";
 import { useLocation } from "wouter";
@@ -44,6 +45,7 @@ export default function HomeRedesigned() {
               </h1>
             </div>
             <div className="flex gap-3">
+              <InstallAppButton className="border-purple-300/25 bg-slate-950/35 text-purple-100 hover:bg-purple-500/10" />
               {isAuthenticated ? (
                 <Button
                   onClick={handleChatClick}
@@ -172,8 +174,8 @@ export default function HomeRedesigned() {
                   desc: "Access your conversations anywhere with PWA technology",
                 },
                 {
-                  title: "Privacy First",
-                  desc: "Your conversations are encrypted and never shared",
+                  title: "Private by Design",
+                  desc: "Conversation threads are kept separate for each authenticated account",
                 },
               ].map((feature, idx) => (
                 <div key={idx} className="glass-effect-dark p-6 rounded-xl border border-purple-500/20">
@@ -206,7 +208,7 @@ export default function HomeRedesigned() {
 
         {/* Footer */}
         <footer className="border-t border-purple-500/10 py-8 px-4 text-center text-purple-300/60 text-sm">
-          <p>© 2024 Icynigma.ai • Philosophical AI from Iconic Media Entertainment</p>
+          <p>© 2026 Icynigma.ai • Created by Inolofatseng Mokgoko • Philosophical AI from Iconic Media Entertainment</p>
         </footer>
       </div>
     </div>

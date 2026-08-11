@@ -156,3 +156,14 @@ pnpm test
 ---
 
 **Icynigma.ai is fully documented and ready for multi-LLM import, collaborative editing, and production deployment.**
+
+## Creator Attribution
+
+**Creator:** Inolofatseng Mokgoko  
+Icynigma.ai was conceived and created by Inolofatseng Mokgoko for Iconic Media Entertainment.
+
+## Current Interaction Model
+
+The chat shell uses authenticated, conversation-scoped messaging. The smart sidebar sorts threads by recent activity, groups them as **Today**, **Previous 7 days**, or **Earlier**, and lets users search titles, start a fresh thread, remove an owned thread, and explore prompts connected to the active topic. The browser voice-input feature uses the native Web Speech recognition API when it is available and preserves a complete typed-input fallback.
+
+The installed-app experience is driven by `client/public/manifest.json`, `client/public/sw.js`, and `client/src/components/InstallAppButton.tsx`. The PWA icon is a hosted derivative of the user-supplied Icynigma logo. The service worker must not be changed to cache authenticated API responses without a privacy review.

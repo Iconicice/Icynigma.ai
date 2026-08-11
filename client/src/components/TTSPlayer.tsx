@@ -64,6 +64,20 @@ export function TTSPlayer({ text, onSynthesizing }: TTSPlayerProps) {
     setIsSupported(supported);
   }, []);
 
+  // Load persisted user preferences from Icynigma Settings.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("icynigma-settings");
+      if (!saved) return;
+      const settings = JSON.parse(saved) as { ttsProvider?: "piper" | "web-speech"; ttsSpeed?: number };
+      if (typeof settings.ttsSpeed === "number") setSpeed(settings.ttsSpeed);
+      if (settings.ttsProvider === "piper") setProvider("piper");
+      if (settings.ttsProvider === "web-speech") setProvider("webspeech");
+    } catch {
+      // Settings remain optional; playback keeps reliable defaults.
+    }
+  }, []);
+
   // Handle audio end
   const handleAudioEnded = () => {
     setIsPlaying(false);

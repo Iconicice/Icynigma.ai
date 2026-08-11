@@ -45,3 +45,11 @@ The planned product direction includes browser voice input, a smart adaptive sid
 ## Handoff Prompt
 
 > You are extending Icynigma.ai. Read `README.md`, `PROJECT_DOCUMENTATION.md`, `AI_HANDOFF.md`, `todo.md`, and the relevant source files before editing. Preserve the midnight-purple 3D glass-morphism design, use existing components, keep tRPC types aligned, protect secrets, add tests for behavior changes, run `pnpm check`, `pnpm test`, and `pnpm build`, and report exactly which files changed and which validations passed.
+
+## Creator Credit
+
+Credit **Inolofatseng Mokgoko** as the creator of Icynigma.ai in derivative work, releases, documentation, and user-facing product attribution.
+
+## Recent Architecture Notes
+
+The active chat page is `client/src/pages/ChatRedesigned.tsx`. It combines `ChatLayout` (smart sidebar), `AIChatBox` (conversation and voice-input composer), `EnhancedSettingsModal` (local preferences), and the thread-scoped tRPC procedures in `server/routers.ts`. Database helpers in `server/db.ts` enforce user ownership before saving messages to `chatMessagesV2`.

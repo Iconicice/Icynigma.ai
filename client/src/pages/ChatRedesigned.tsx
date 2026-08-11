@@ -1,318 +1,255 @@
-/**
- * Chat Page - Redesigned with 3D Glass-Morphism
- * 
- * Full aesthetic overhaul with:
- * - 3D glass-morphism design throughout
- * - Animated gradient backgrounds
- * - Futuristic typography (Orbitron)
- * - Glass-effect cards and components
- * - Smooth animations and transitions
- * - Professional UX flows
- */
-
 import { useAuth } from "@/_core/hooks/useAuth";
 import { AIChatBox, type Message } from "@/components/AIChatBox";
-import { Button } from "@/components/ui/button";
 import { ChatLayout } from "@/components/ChatLayout";
-import { EnhancedSettingsModal } from "@/components/EnhancedSettingsModal";
-import { trpc } from "@/lib/trpc";
+import { DEFAULT_SETTINGS, EnhancedSettingsModal, type UserSettings } from "@/components/EnhancedSettingsModal";
+import { Button } from "@/components/ui/button";
+import { InstallAppButton } from "@/components/InstallAppButton";
 import { useNotification } from "@/contexts/NotificationContext";
-import { ArrowLeft, Settings, LogOut, HelpCircle, Sparkles, Brain } from "lucide-react";
-import { useEffect, useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { ArrowLeft, Brain, HelpCircle, LogOut, Settings, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 
 type Conversation = {
   id: number;
   title: string;
   createdAt: Date;
-  messageCount?: number;
+  updatedAt?: Date;
+  messageCount: number;
 };
+
+const backgroundClasses: Record<UserSettings["background"], string> = {
+  gradient: "bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900",
+  solid: "bg-slate-950",
+  pattern: "bg-[radial-gradient(circle_at_18%_20%,rgba(139,92,246,.34),transparent_32%),radial-gradient(circle_at_82%_72%,rgba(6,182,212,.20),transparent_34%),linear-gradient(135deg,#020617,#1e1b4b,#020617)]",
+  glass: "bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950",
+};
+
+const fontClasses: Record<UserSettings["font"], string> = {
+  default: "font-sans",
+  elegant: "font-serif",
+  modern: "font-mono",
+  futuristic: "font-sans",
+};
+
+function titleFromMessage(message: string) {
+  const compact = message.replace(/\s+/g, " ").trim();
+  return compact.length > 52 ? `${compact.slice(0, 49)}…` : compact || "New conversation";
+}
 
 export default function ChatRedesigned() {
   const { user, isAuthenticated, logout } = useAuth();
   const { success, error: showError } = useNotification();
   const [, setLocation] = useLocation();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [showHelp, setShowHelp] = useState(false);
+  const utils = trpc.useUtils();
 
-  // Fetch chat history on mount
-  const { data: history, isLoading: historyLoading } = trpc.chat.getHistory.useQuery();
-  const { data: conversationsList, isLoading: conversationsLoading } = trpc.conversations.list.useQuery();
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
+
+  const conversationsQuery = trpc.conversations.list.useQuery(undefined, { enabled: isAuthenticated });
+  const historyInput = useMemo(() => ({ conversationId: activeConversationId ?? 0 }), [activeConversationId]);
+  const historyQuery = trpc.chat.getHistory.useQuery(historyInput, { enabled: Boolean(activeConversationId) });
   const sendMessageMutation = trpc.chat.sendMessage.useMutation();
   const createConversationMutation = trpc.conversations.create.useMutation();
   const deleteConversationMutation = trpc.conversations.delete.useMutation();
+  const clearConversationMutation = trpc.chat.clear.useMutation();
 
-  // Redirect to home if not authenticated
+  const conversations = (conversationsQuery.data ?? []) as Conversation[];
+  const isLoading = sendMessageMutation.isPending || createConversationMutation.isPending;
+
   useEffect(() => {
-    if (!isAuthenticated) {
-      setLocation("/");
-    }
+    if (!isAuthenticated) setLocation("/");
   }, [isAuthenticated, setLocation]);
 
-  // Load conversations
   useEffect(() => {
-    if (conversationsList) {
-      setConversations(conversationsList as Conversation[]);
-      if (conversationsList.length > 0 && !activeConversationId) {
-        setActiveConversationId((conversationsList[0] as any).id);
-      }
-    }
-  }, [conversationsList, activeConversationId]);
-
-  // Load chat history
-  useEffect(() => {
-    if (history) {
-      const formattedMessages = history.map((msg) => ({
-        role: msg.role as "user" | "assistant" | "system",
-        content: msg.content,
-      }));
-      setMessages(formattedMessages);
-    }
-  }, [history]);
-
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) {
-      showError("Empty message", "Please type something before sending");
-      return;
-    }
-
-    setMessages((prev) => [...prev, { role: "user", content }]);
-    setIsLoading(true);
-
     try {
-      const response = await sendMessageMutation.mutateAsync({ message: content });
-      setMessages((prev) => [...prev, { role: "assistant", content: response.message }]);
-      success("Response received", "Icynigma has responded");
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-      showError("Failed to send message", errorMessage);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Sorry, I encountered an error. Please try again." },
-      ]);
-    } finally {
-      setIsLoading(false);
+      const saved = localStorage.getItem("icynigma-settings");
+      if (saved) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
+    } catch {
+      localStorage.removeItem("icynigma-settings");
     }
+  }, []);
+
+  useEffect(() => {
+    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? true;
+    const dark = settings.theme === "dark" || (settings.theme === "auto" && prefersDark);
+    document.documentElement.classList.toggle("dark", dark);
+    document.documentElement.style.setProperty("--icynigma-accent", settings.accentColor);
+  }, [settings]);
+
+  useEffect(() => {
+    if (!activeConversationId && conversations.length > 0) setActiveConversationId(conversations[0].id);
+  }, [activeConversationId, conversations]);
+
+  useEffect(() => {
+    if (!historyQuery.data) return;
+    setMessages(historyQuery.data.map((message) => ({
+      role: message.role as Message["role"],
+      content: message.content,
+    })));
+  }, [historyQuery.data]);
+
+  const createConversation = async (title = "New conversation") => {
+    const conversation = await createConversationMutation.mutateAsync({ title });
+    setActiveConversationId(conversation.id);
+    setMessages([]);
+    await utils.conversations.list.invalidate();
+    return conversation.id;
   };
 
-  const handleClearHistory = async () => {
-    if (confirm("Are you sure you want to clear your chat history? This cannot be undone.")) {
-      setMessages([]);
-      success("History cleared", "Your chat history has been deleted");
+  const handleSendMessage = async (content: string) => {
+    if (!content.trim()) return;
+    try {
+      const conversationId = activeConversationId ?? await createConversation(titleFromMessage(content));
+      setMessages((previous) => [...previous, { role: "user", content }]);
+      const response = await sendMessageMutation.mutateAsync({ message: content, conversationId });
+      setMessages((previous) => [...previous, { role: "assistant", content: response.message }]);
+      await Promise.all([
+        utils.chat.getHistory.invalidate({ conversationId }),
+        utils.conversations.list.invalidate(),
+      ]);
+    } catch (error) {
+      showError("Message not sent", error instanceof Error ? error.message : "Please try again.");
     }
   };
 
   const handleNewConversation = async () => {
     try {
-      const newConv = await createConversationMutation.mutateAsync({
-        title: `Chat ${new Date().toLocaleDateString()}`,
-      });
-      setConversations((prev) => [newConv as any, ...prev]);
-      setActiveConversationId((newConv as any).id);
-      setMessages([]);
-      success("New conversation created", "Start chatting with Icynigma");
+      await createConversation();
+      success("New conversation", "A fresh space for your next question is ready.");
     } catch (error) {
-      showError("Failed to create conversation", error instanceof Error ? error.message : "Unknown error");
+      showError("Could not create a conversation", error instanceof Error ? error.message : "Please try again.");
     }
   };
 
-  const handleDeleteConversation = async (id: number) => {
-    if (confirm("Delete this conversation? This action cannot be undone.")) {
-      try {
-        await deleteConversationMutation.mutateAsync({ conversationId: id });
-        setConversations((prev) => prev.filter((c) => c.id !== id));
-        if (activeConversationId === id) {
-          setActiveConversationId(conversations[0]?.id || null);
-          setMessages([]);
-        }
-        success("Conversation deleted", "");
-      } catch (error) {
-        showError("Failed to delete conversation", error instanceof Error ? error.message : "Unknown error");
+  const handleSelectConversation = (id: string) => {
+    const nextId = Number(id);
+    if (!Number.isFinite(nextId) || nextId === activeConversationId) return;
+    setActiveConversationId(nextId);
+    setMessages([]);
+  };
+
+  const handleDeleteConversation = async (id: string) => {
+    const conversationId = Number(id);
+    const conversation = conversations.find((item) => item.id === conversationId);
+    if (!conversation || !window.confirm(`Delete “${conversation.title}”? This cannot be undone.`)) return;
+    try {
+      const result = await deleteConversationMutation.mutateAsync({ conversationId });
+      if (!result.success) throw new Error("The conversation could not be deleted.");
+      if (activeConversationId === conversationId) {
+        setActiveConversationId(null);
+        setMessages([]);
       }
+      await utils.conversations.list.invalidate();
+      success("Conversation deleted", "The thread and its messages were removed.");
+    } catch (error) {
+      showError("Could not delete conversation", error instanceof Error ? error.message : "Please try again.");
     }
   };
 
-  const handleLogout = () => {
-    if (confirm("Are you sure you want to log out?")) {
-      logout();
-      setLocation("/");
+  const handleClearHistory = async () => {
+    if (!activeConversationId) {
+      setMessages([]);
+      return;
+    }
+    if (!window.confirm("Clear every message in this conversation? This cannot be undone.")) return;
+    try {
+      await clearConversationMutation.mutateAsync({ conversationId: activeConversationId });
+      setMessages([]);
+      await Promise.all([
+        utils.chat.getHistory.invalidate({ conversationId: activeConversationId }),
+        utils.conversations.list.invalidate(),
+      ]);
+      success("Conversation cleared", "This thread is ready for a new direction.");
+    } catch (error) {
+      showError("Could not clear conversation", error instanceof Error ? error.message : "Please try again.");
     }
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  const handleSettingsChange = (next: UserSettings) => setSettings(next);
+
+  if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-foreground flex flex-col overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-500" />
+    <div className={`${backgroundClasses[settings.background]} ${fontClasses[settings.font]} min-h-screen overflow-hidden text-foreground`} style={{ "--icynigma-accent": settings.accentColor } as React.CSSProperties}>
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute left-10 top-20 size-72 rounded-full bg-purple-500/20 blur-3xl" />
+        <div className="absolute bottom-16 right-6 size-96 rounded-full bg-blue-500/15 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-3xl" />
       </div>
 
-      {/* Header */}
-      <header className="glass-effect-dark sticky top-0 z-50 transition-all duration-300 border-b border-purple-500/20 backdrop-blur-md">
-        <div className="max-w-full mx-auto px-4 py-4 flex items-center justify-between relative z-10">
-          {/* Left Section */}
-          <div className="flex items-center gap-3 flex-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setLocation("/")}
-              className="hover:bg-accent/10 transition-colors rounded-lg"
-              aria-label="Back to home"
-              title="Back to home"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="hidden sm:flex items-center gap-2">
-              <Brain className="h-5 w-5 text-purple-400" />
-              <div>
-                <h1 className="text-lg font-futuristic text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
-                  Icynigma
-                </h1>
-                <p className="text-xs text-purple-300/60">Philosophical AI</p>
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <header className="border-b border-purple-400/15 bg-slate-950/55 backdrop-blur-xl">
+          <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <div className="flex min-w-0 items-center gap-3">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setLocation("/")} className="shrink-0 text-purple-100 hover:bg-purple-500/10" aria-label="Back to home" title="Back to home"><ArrowLeft className="size-4" /></Button>
+              <div className="flex min-w-0 items-center gap-2">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-purple-400/25 bg-purple-500/10"><Brain className="size-4 text-purple-300" /></div>
+                <div className="min-w-0">
+                  <h1 className="truncate text-base font-futuristic text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300">Icynigma</h1>
+                  <p className="hidden text-[11px] text-purple-100/55 sm:block">from the plethora he came</p>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Right Section */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowHelp(!showHelp)}
-              className="hover:bg-accent/10 transition-colors rounded-lg"
-              aria-label="Help"
-              title="Get help"
-            >
-              <HelpCircle className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowSettings(true)}
-              className="hover:bg-accent/10 transition-colors rounded-lg"
-              aria-label="Settings"
-              title="Open settings"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLogout}
-              className="hover:bg-red-500/10 hover:text-red-400 transition-colors rounded-lg"
-              aria-label="Logout"
-              title="Sign out"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Help Banner */}
-        {showHelp && (
-          <div className="border-t border-purple-500/20 bg-purple-500/5 px-4 py-3 text-sm text-purple-300/80 relative z-10 backdrop-blur-sm">
-            <div className="flex gap-3 max-w-4xl mx-auto">
-              <Sparkles className="h-4 w-4 flex-shrink-0 text-purple-400 mt-0.5" />
-              <div>
-                <p className="font-medium text-purple-200 mb-2">💡 Tips for better conversations:</p>
-                <ul className="text-xs space-y-1 ml-4 list-disc text-purple-300/70">
-                  <li>Ask philosophical questions about consciousness, existence, and meaning</li>
-                  <li>Customize your experience in settings (theme, font, voice)</li>
-                  <li>Create new conversations to organize different topics</li>
-                  <li>Use text-to-speech to listen to Icynigma's responses</li>
-                </ul>
-              </div>
+            <div className="flex items-center gap-1">
+              <InstallAppButton compact className="border-purple-300/20 bg-slate-950/30 text-purple-100 hover:bg-purple-500/10" />
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowHelp((visible) => !visible)} className="text-purple-100 hover:bg-purple-500/10" aria-label="Show chat help" title="Help"><HelpCircle className="size-4" /></Button>
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowSettings(true)} className="text-purple-100 hover:bg-purple-500/10" aria-label="Open settings" title="Settings"><Settings className="size-4" /></Button>
+              <Button type="button" variant="ghost" size="icon" onClick={() => { if (window.confirm("Sign out of Icynigma?")) { logout(); setLocation("/"); } }} className="text-purple-100 hover:bg-red-500/10 hover:text-red-200" aria-label="Sign out" title="Sign out"><LogOut className="size-4" /></Button>
             </div>
           </div>
-        )}
-      </header>
-
-      {/* Loading State */}
-      {historyLoading || conversationsLoading ? (
-        <div className="flex-1 flex items-center justify-center relative z-10">
-          <div className="text-center space-y-4">
-            <div className="inline-block">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-400"></div>
+          {showHelp && (
+            <div className="border-t border-purple-400/10 bg-purple-500/5 px-4 py-3 text-xs text-purple-100/75">
+              <div className="mx-auto flex max-w-4xl gap-2"><Sparkles className="mt-0.5 size-4 shrink-0 text-purple-300" /><p>Ask one question at a time, use the sidebar to keep ideas distinct, select the microphone to speak instead of type, and open Settings to personalize the atmosphere.</p></div>
             </div>
-            <p className="text-purple-300/70">Loading your conversations...</p>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Chat Area with Sidebar */}
-          <main className="flex-1 overflow-hidden flex flex-col relative z-10">
+          )}
+        </header>
+
+        <main className="min-h-0 flex-1 p-0 md:p-3">
+          <div className="mx-auto h-[calc(100vh-65px)] max-w-[1600px] overflow-hidden border-y border-purple-400/15 bg-slate-950/25 md:rounded-2xl md:border">
             <ChatLayout
-              conversations={conversations.map((c) => ({
-                ...c,
-                id: c.id.toString(),
-                messageCount: messages.length || 0,
-              }))}
-              activeConversationId={activeConversationId?.toString()}
-              onSelectConversation={(id) => setActiveConversationId(parseInt(id))}
+              conversations={conversations.map((conversation) => ({ ...conversation, id: String(conversation.id) }))}
+              activeConversationId={activeConversationId ? String(activeConversationId) : undefined}
+              onSelectConversation={handleSelectConversation}
               onNewConversation={handleNewConversation}
-              onDeleteConversation={(id) => handleDeleteConversation(parseInt(id))}
+              onDeleteConversation={handleDeleteConversation}
+              onUsePrompt={handleSendMessage}
+              compact={settings.sidebarMode === "compact"}
             >
-              <div className="max-w-4xl mx-auto h-full w-full px-4 py-4 flex flex-col">
-                {/* Empty State */}
-                {messages.length === 0 && !isLoading && (
-                  <div className="flex-1 flex items-center justify-center">
-                    <div className="text-center space-y-8 max-w-md">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full blur-2xl"></div>
-                        <div className="relative text-6xl">🧠</div>
-                      </div>
-                      <div>
-                        <h2 className="text-2xl md:text-3xl font-futuristic text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 mb-3">
-                          Welcome to Icynigma
-                        </h2>
-                        <p className="text-purple-300/80 mb-6 leading-relaxed">
-                          Start a philosophical conversation about existence, consciousness, meaning, and the nature of reality.
-                        </p>
-                        <p className="text-sm text-purple-400/80 font-medium">
-                          ✨ Ask me anything philosophical...
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Chat Box */}
-                {(messages.length > 0 || isLoading) && (
+              <div className="h-full p-3 pt-14 sm:p-4 sm:pt-4">
+                {conversationsQuery.isLoading ? (
+                  <div className="flex h-full items-center justify-center"><div className="text-center text-sm text-purple-100/65"><div className="mx-auto mb-3 size-9 animate-spin rounded-full border-2 border-purple-300/30 border-t-purple-300" />Opening your thought space…</div></div>
+                ) : (
                   <AIChatBox
                     messages={messages}
                     onSendMessage={handleSendMessage}
-                    isLoading={isLoading}
-                    placeholder="Ask Icynigma anything... (e.g., 'What is the nature of consciousness?')"
+                    isLoading={isLoading || historyQuery.isLoading}
+                    placeholder="Ask Icynigma about consciousness, meaning, freedom…"
                     height="100%"
-                    className="rounded-xl border border-purple-500/20 glass-effect-dark"
+                    className="h-full"
+                    emptyStateMessage={activeConversationId ? "This thread is quiet. What question should wake it?" : "Begin with a question, and Icynigma will create a new thread for it."}
+                    suggestedPrompts={undefined}
+                    voiceInputEnabled={settings.voiceInputEnabled}
                   />
                 )}
               </div>
             </ChatLayout>
-          </main>
-        </>
-      )}
+          </div>
+        </main>
 
-      {/* Footer */}
-      <footer className="border-t border-purple-500/20 bg-gradient-to-r from-purple-950/50 to-blue-950/50 backdrop-blur-sm px-4 py-3 text-center text-xs text-purple-300/60 relative z-10">
-        <p>Powered by Manus LLM • {user?.name || "Guest"}</p>
-      </footer>
+        <footer className="border-t border-purple-400/10 bg-slate-950/35 px-4 py-2 text-center text-[11px] text-purple-100/50 backdrop-blur">
+          Icynigma.ai • Created by Inolofatseng Mokgoko • {user?.name || "Guest"}
+        </footer>
+      </div>
 
-      {/* Settings Modal */}
       <EnhancedSettingsModal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
         onClearHistory={handleClearHistory}
+        onSettingsChange={handleSettingsChange}
       />
     </div>
   );
