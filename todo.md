@@ -199,3 +199,28 @@
 - [x] Generate locally hosted PWA icon variants from the supplied logo
 - [x] Update manifest, browser metadata, and install icon references
 - [x] Validate the visual identity update in the production build and public source
+
+## Settings, Attribution, and ElevenLabs Refresh
+- [x] Audit settings state propagation and identify why theme/background choices do not apply
+- [x] Add an explicit settings apply action with pending-change feedback and persistence
+- [x] Implement and test theme, background, font, accent, sidebar, voice-input, and TTS preference application
+- [x] Add ElevenLabs TTS as an optional server-side provider with a browser/Piper fallback
+- [x] Add ElevenLabs speech-to-text integration with browser speech-recognition fallback
+- [x] Validate and preserve required platform attribution boundaries while reducing visual competition with the app UI
+- [x] Add or update tests for settings application and speech-provider fallback behavior
+- [ ] Validate, publish, and deliver the completed refresh
+
+## GitHub Pages Static Entry Point
+- [x] Add a GitHub Pages-compatible static project landing page that directs visitors to the live full-stack application
+- [ ] Configure and verify GitHub Pages publication without misrepresenting its server, database, or authentication limitations
+- [ ] Push the refreshed settings and ElevenLabs source changes to the public repository
+
+## GitHub Pages Static Entry Point
+- [x] Add a GitHub Pages-compatible static project landing page that directs visitors to the live full-stack application
+- [ ] Configure and verify GitHub Pages publication without misrepresenting its server, database, or authentication limitations
+- [ ] Push the refreshed settings and ElevenLabs source changes to the public repository
+
+## IME TrustPass Shared Authentication
+- [x] Inspect IME TrustPass authentication capabilities and integration documentation
+- [x] Determine the secure SSO protocol, redirect flow, callback requirements, and domain trust boundaries for Icynigma
+- [x] Prepare a reusable IME-brand integration contract without weakening existing authentication or handling credentials client-side

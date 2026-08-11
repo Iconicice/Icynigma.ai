@@ -364,3 +364,15 @@ The composer now supports **browser voice input** with clear microphone-permissi
 Icynigma is installable as a **Progressive Web App**. Its manifest, browser favicon, Apple touch icon, and installation metadata use the supplied Icynigma logo. The service worker caches the application shell and public runtime assets while deliberately avoiding caches for private API, authentication, conversation, and speech responses.
 
 For faster initial chat rendering, rich markdown and diagram support is now loaded only when an assistant message needs it rather than in the initial chat shell.
+
+## Settings, ElevenLabs, and GitHub Pages
+
+The chat Settings panel now uses a **staged Apply changes flow**. Theme, background, typography, accent, sidebar density, voice-input provider, TTS provider, and playback speed are saved only after the user applies the draft. Light, dark, and system themes are supported by the active chat shell; existing saved preferences are normalized safely for compatibility.
+
+When configured, **ElevenLabs** is available as the default server-side text-to-speech and speech-to-text provider. Speech requests remain authenticated, audio is sent only for the requested transcription, and browser speech recognition and browser speech synthesis remain available as resilient fallbacks. The API key is held server-side in `ELEVENLABS_API_KEY` and is never exposed to the browser.
+
+The repository contains a static GitHub Pages entry point in `docs/`. It clearly routes visitors to the live Icynigma application and source repository. GitHub Pages cannot run this project's Express server, database, Manus OAuth, LLM, or server-side speech endpoints; the full application remains hosted at the live URL.
+
+### IME TrustPass shared login
+
+IME TrustPass can serve as the shared sign-in experience only once it exposes a documented server-side SSO contract, preferably OpenID Connect Authorization Code Flow with PKCE. Each IME site must register its callback URI and validate issuer, JWKS, audience, state, nonce, and token expiry. Until that contract is available, Icynigma retains its existing secure authentication flow rather than using an unsafe cross-site redirect.

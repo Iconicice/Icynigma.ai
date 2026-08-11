@@ -11,3 +11,7 @@ The preview shell displayed its normal non-production notice. No application ren
 ## Supplied AI logo verification — 2026-08-11
 
 The supplied AI logo was verified in both the development preview and the live public deployment at `https://icynigma-xkxmkqhz.manus.space`. It renders in the landing-page navigation against the midnight-purple glass header, and the production page exposes the install-app control. The icon update also passed `pnpm check`, the full 53-test suite, and `pnpm build` before publication.
+
+## IME TrustPass shared-login assessment — 2026-08-11
+
+The public TrustPass landing page exposes email/password, Manus, and WhatsApp sign-in choices. Its public frontend bundle references the standard Manus OAuth callback (`/api/oauth/callback`) but exposes no OpenID Connect discovery document, OAuth client-registration endpoint, issuer metadata, token-exchange API, or documented callback contract for third-party IME sites. Icynigma should therefore retain its existing authenticated login until TrustPass provides a server-side SSO contract with registered redirect URIs, signed state/nonce validation, and an issuer/JWKS endpoint.

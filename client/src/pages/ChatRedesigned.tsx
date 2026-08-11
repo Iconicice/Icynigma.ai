@@ -24,12 +24,19 @@ const backgroundClasses: Record<UserSettings["background"], string> = {
   pattern: "bg-[radial-gradient(circle_at_18%_20%,rgba(139,92,246,.34),transparent_32%),radial-gradient(circle_at_82%_72%,rgba(6,182,212,.20),transparent_34%),linear-gradient(135deg,#020617,#1e1b4b,#020617)]",
   glass: "bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950",
 };
+const lightBackgroundClasses: Record<UserSettings["background"], string> = {
+  gradient: "bg-gradient-to-br from-slate-100 via-violet-100 to-cyan-100",
+  solid: "bg-slate-100",
+  pattern: "bg-[radial-gradient(circle_at_18%_20%,rgba(139,92,246,.24),transparent_32%),radial-gradient(circle_at_82%_72%,rgba(6,182,212,.18),transparent_34%),linear-gradient(135deg,#f8fafc,#ede9fe,#ecfeff)]",
+  glass: "bg-gradient-to-br from-white via-violet-50 to-slate-100",
+};
+
 
 const fontClasses: Record<UserSettings["font"], string> = {
   default: "font-sans",
   elegant: "font-serif",
   modern: "font-mono",
-  futuristic: "font-sans",
+  futuristic: "font-futuristic",
 };
 
 function titleFromMessage(message: string) {
@@ -170,11 +177,17 @@ export default function ChatRedesigned() {
   };
 
   const handleSettingsChange = (next: UserSettings) => setSettings(next);
+  const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? true;
+  const isLightTheme = settings.theme === "light" || (settings.theme === "auto" && !prefersDark);
+  const activeBackground = isLightTheme ? lightBackgroundClasses[settings.background] : backgroundClasses[settings.background];
+  const shellTone = isLightTheme ? "border-slate-300/70 bg-white/75 text-slate-900" : "border-purple-400/15 bg-slate-950/55";
+  const contentTone = isLightTheme ? "border-slate-300/70 bg-white/45" : "border-purple-400/15 bg-slate-950/25";
+
 
   if (!isAuthenticated) return null;
 
   return (
-    <div className={`${backgroundClasses[settings.background]} ${fontClasses[settings.font]} min-h-screen overflow-hidden text-foreground`} style={{ "--icynigma-accent": settings.accentColor } as React.CSSProperties}>
+    <div className={`${activeBackground} ${fontClasses[settings.font]} min-h-screen overflow-hidden ${isLightTheme ? "text-slate-900" : "text-foreground"}`} style={{ "--icynigma-accent": settings.accentColor, boxShadow: `inset 0 3px 0 ${settings.accentColor}` } as React.CSSProperties}>
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute left-10 top-20 size-72 rounded-full bg-purple-500/20 blur-3xl" />
         <div className="absolute bottom-16 right-6 size-96 rounded-full bg-blue-500/15 blur-3xl" />
@@ -182,7 +195,7 @@ export default function ChatRedesigned() {
       </div>
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="border-b border-purple-400/15 bg-slate-950/55 backdrop-blur-xl">
+        <header className={`border-b backdrop-blur-xl ${shellTone}`} style={{ borderTopColor: settings.accentColor, borderTopWidth: 2 }}>
           <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <Button type="button" variant="ghost" size="icon" onClick={() => setLocation("/")} className="shrink-0 text-purple-100 hover:bg-purple-500/10" aria-label="Back to home" title="Back to home"><ArrowLeft className="size-4" /></Button>
@@ -209,7 +222,7 @@ export default function ChatRedesigned() {
         </header>
 
         <main className="min-h-0 flex-1 p-0 md:p-3">
-          <div className="mx-auto h-[calc(100vh-65px)] max-w-[1600px] overflow-hidden border-y border-purple-400/15 bg-slate-950/25 md:rounded-2xl md:border">
+          <div className={`mx-auto h-[calc(100vh-65px)] max-w-[1600px] overflow-hidden border-y md:rounded-2xl md:border ${contentTone}`}>
             <ChatLayout
               conversations={conversations.map((conversation) => ({ ...conversation, id: String(conversation.id) }))}
               activeConversationId={activeConversationId ? String(activeConversationId) : undefined}
@@ -233,6 +246,9 @@ export default function ChatRedesigned() {
                     emptyStateMessage={activeConversationId ? "This thread is quiet. What question should wake it?" : "Begin with a question, and Icynigma will create a new thread for it."}
                     suggestedPrompts={undefined}
                     voiceInputEnabled={settings.voiceInputEnabled}
+                    voiceInputProvider={settings.voiceInputProvider}
+                    ttsProvider={settings.ttsProvider}
+                    ttsSpeed={settings.ttsSpeed}
                   />
                 )}
               </div>
@@ -240,7 +256,7 @@ export default function ChatRedesigned() {
           </div>
         </main>
 
-        <footer className="border-t border-purple-400/10 bg-slate-950/35 px-4 py-2 text-center text-[11px] text-purple-100/50 backdrop-blur">
+        <footer className={`border-t px-4 py-2 text-center text-[11px] backdrop-blur ${isLightTheme ? "border-slate-300/70 bg-white/45 text-slate-600" : "border-purple-400/10 bg-slate-950/35 text-purple-100/50"}`}>
           Icynigma.ai • Created by Inolofatseng Mokgoko • {user?.name || "Guest"}
         </footer>
       </div>
