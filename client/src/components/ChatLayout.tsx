@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Brain, ChevronLeft, Compass, Menu, MessageSquare, Plus, Search, Sparkles, Trash2, X } from "lucide-react";
+import { ChevronLeft, Compass, Menu, MessageSquare, Plus, Search, Sparkles, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -57,9 +57,7 @@ export function ChatLayout({
       <div className="border-b border-purple-400/15 p-3">
         <div className="mb-3 flex items-center justify-between gap-2 px-1">
           <div className="flex items-center gap-2 text-purple-100">
-            <div className="flex size-8 items-center justify-center rounded-lg border border-purple-400/25 bg-purple-500/10">
-              <Brain className="size-4 text-purple-300" aria-hidden="true" />
-            </div>
+            <div className="flex size-8 items-center justify-center overflow-hidden rounded-lg border border-purple-400/25 bg-purple-500/10"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663240321743/zJmlXyrDRYNPrYwS.webp" alt="" aria-hidden="true" className="size-7 object-contain drop-shadow-[0_0_7px_rgba(192,132,252,.65)]" /></div>
             <div>
               <p className="text-sm font-semibold tracking-wide">Thought space</p>
               <p className="text-[11px] text-purple-200/55">Your living archive</p>

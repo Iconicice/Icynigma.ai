@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { useNotification } from "@/contexts/NotificationContext";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Brain, HelpCircle, LogOut, Settings, Sparkles } from "lucide-react";
+import { ArrowLeft, HelpCircle, LogOut, Settings, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 
@@ -187,7 +187,7 @@ export default function ChatRedesigned() {
             <div className="flex min-w-0 items-center gap-3">
               <Button type="button" variant="ghost" size="icon" onClick={() => setLocation("/")} className="shrink-0 text-purple-100 hover:bg-purple-500/10" aria-label="Back to home" title="Back to home"><ArrowLeft className="size-4" /></Button>
               <div className="flex min-w-0 items-center gap-2">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-purple-400/25 bg-purple-500/10"><Brain className="size-4 text-purple-300" /></div>
+                <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-purple-400/25 bg-purple-500/10"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663240321743/zJmlXyrDRYNPrYwS.webp" alt="" aria-hidden="true" className="size-8 object-contain drop-shadow-[0_0_7px_rgba(192,132,252,.65)]" /></div>
                 <div className="min-w-0">
                   <h1 className="truncate text-base font-futuristic text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300">Icynigma</h1>
                   <p className="hidden text-[11px] text-purple-100/55 sm:block">from the plethora he came</p>

@@ -163,9 +163,9 @@
 
 ## Public GitHub Publication
 - [x] Inspect authenticated GitHub access and repository state
-- [ ] Create or update public repository iconicice/Icynigma.ai
-- [ ] Push complete source, documentation, migrations, and configuration
-- [ ] Verify public GitHub repository contents
+- [x] Create or update public repository iconicice/Icynigma.ai
+- [x] Push complete source, documentation, migrations, and configuration
+- [x] Verify public GitHub repository contents
 - [ ] Deliver repository URL and source archive
 
 ## Complete Portable Source Scope
@@ -182,14 +182,20 @@
 - [x] Update manifest, HTML metadata, and service worker for branded install/offline behavior
 - [x] Add or update Vitest coverage for new behavior
 - [x] Test build, responsive layouts, PWA assets, and core user flows
-- [ ] Publish complete source and refinements to GitHub
+- [x] Publish complete source and refinements to GitHub
 - [ ] Deliver updated live site URL and downloadable source package
 
 ## Creator Credit
 - [x] Credit Inolofatseng Mokgoko as the creator in the application footer and about content
 - [x] Credit Inolofatseng Mokgoko in README, project documentation, and AI handoff materials
-- [ ] Include creator credit in GitHub repository metadata and release documentation
+- [x] Include creator credit in GitHub repository metadata and release documentation
 
 ## Connected-Service Finalization
-- [ ] Confirm the active GitHub connection can publish and verify the public source repository
-- [ ] Apply only relevant connected-service updates while preserving local data, authentication, and privacy boundaries
+- [x] Confirm the active GitHub connection can publish and verify the public source repository
+- [x] Apply only relevant connected-service updates while preserving local data, authentication, and privacy boundaries
+
+## Supplied AI Logo and App Icon
+- [x] Replace the in-app navigation and identity mark with the supplied AI logo
+- [x] Generate locally hosted PWA icon variants from the supplied logo
+- [x] Update manifest, browser metadata, and install icon references
+- [x] Validate the visual identity update in the production build and public source

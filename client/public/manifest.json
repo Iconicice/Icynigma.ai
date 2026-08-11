@@ -14,8 +14,14 @@
   "lang": "en",
   "icons": [
     {
-      "src": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663240321743/yZLGSjfEVWyGFkFP.png",
-      "sizes": "1920x1920",
+      "src": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663240321743/qDBIIckmFmHpVrDp.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663240321743/zszRewEcDyXdGBBO.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }

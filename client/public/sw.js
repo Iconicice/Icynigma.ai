@@ -1,5 +1,5 @@
-const CACHE_NAME = "icynigma-shell-v2";
-const RUNTIME_CACHE = "icynigma-runtime-v2";
+const CACHE_NAME = "icynigma-shell-v3";
+const RUNTIME_CACHE = "icynigma-runtime-v3";
 const APP_SHELL = ["/", "/index.html", "/manifest.json"];
 
 self.addEventListener("install", (event) => {

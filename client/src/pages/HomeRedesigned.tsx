@@ -38,7 +38,7 @@ export default function HomeRedesigned() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg glass-effect-accent flex items-center justify-center">
-                <Brain className="w-6 h-6 text-purple-400" />
+                <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663240321743/zJmlXyrDRYNPrYwS.webp" alt="" aria-hidden="true" className="h-8 w-8 object-contain drop-shadow-[0_0_8px_rgba(192,132,252,.65)]" />
               </div>
               <h1 className="text-2xl font-futuristic text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
                 Icynigma
