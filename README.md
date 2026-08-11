@@ -376,3 +376,7 @@ The repository contains a static GitHub Pages entry point in `docs/`. It clearly
 ### IME TrustPass shared login
 
 IME TrustPass can serve as the shared sign-in experience only once it exposes a documented server-side SSO contract, preferably OpenID Connect Authorization Code Flow with PKCE. Each IME site must register its callback URI and validate issuer, JWKS, audience, state, nonce, and token expiry. Until that contract is available, Icynigma retains its existing secure authentication flow rather than using an unsafe cross-site redirect.
+
+## Official I.M.E. information reference
+
+For questions specifically about **Ice/Iconic Media Entertainment**, **I.M.E.**, **Iconic.ice**, or **Inolofatseng Mokgoko**, Icynigma adds a curated, source-linked context derived from the designated official site: <https://icemediaent-kbysc8ud.manus.space/>. The response path uses only the documented published facts, includes the official source URL, and states when requested detail is not confirmed. Unrelated prompts retain Icynigma’s standard philosophical conversation behavior.

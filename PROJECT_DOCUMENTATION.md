@@ -177,3 +177,7 @@ The application now supports authenticated server-side **ElevenLabs** synthesis 
 The public repository now includes a `docs/` GitHub Pages entry point at `https://iconicice.github.io/Icynigma.ai/`. It is deliberately a static project page that sends visitors to the full secure application. GitHub Pages does not execute the Express server, database, OAuth, AI model calls, or server-side voice APIs; those services remain available at `https://icynigma-xkxmkqhz.manus.space`.
 
 IME TrustPass was assessed as a potential shared login service. Its current public surface exposes its own sign-in options, but no public third-party OAuth/OpenID Connect issuer metadata or client-registration contract. A future shared sign-in rollout should use server-side OpenID Connect Authorization Code Flow with PKCE, registered redirect URIs, state and nonce validation, JWKS signature checks, audience validation, and expiry checks. Icynigma retains its existing authentication until this contract is supplied.
+
+## Official I.M.E. Information Reference
+
+Icynigma recognizes questions about Ice/Iconic Media Entertainment, I.M.E., Iconic.ice, and Inolofatseng Mokgoko. For these topics it supplies the model with bounded, published facts from the user-designated official source, `https://icemediaent-kbysc8ud.manus.space/`. The assistant is instructed to include that source URL, avoid inventing information, and identify details not confirmed by the source. Standard philosophical requests are not given the official business-reference context.

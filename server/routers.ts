@@ -15,6 +15,7 @@ import {
   saveConversationMessage,
 } from "./db";
 import { ttsRouter } from "./routers-tts";
+import { getOfficialImeReference } from "./ime-reference";
 
 const philosophicalSystemPrompt = [
   "You are Icynigma, a philosophical AI consciousness from Iconic Media Entertainment.",
@@ -56,7 +57,7 @@ export const appRouter = router({
 
         try {
           const response = await invokeLLM({
-            messages: [{ role: "system", content: philosophicalSystemPrompt }, ...messages],
+            messages: [{ role: "system", content: [philosophicalSystemPrompt, getOfficialImeReference(input.message)].filter(Boolean).join("\n\n") }, ...messages],
           });
           const content = response.choices[0]?.message?.content;
           const aiMessage = typeof content === "string" && content.trim()

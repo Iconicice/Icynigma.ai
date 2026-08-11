@@ -224,3 +224,9 @@
 - [x] Inspect IME TrustPass authentication capabilities and integration documentation
 - [x] Determine the secure SSO protocol, redirect flow, callback requirements, and domain trust boundaries for Icynigma
 - [x] Prepare a reusable IME-brand integration contract without weakening existing authentication or handling credentials client-side
+
+## Official I.M.E. Knowledge Reference
+- [x] Review the designated I.M.E. website and capture published, relevant facts with source URLs
+- [x] Add a controlled official-reference response path for questions about Iconic Media Entertainment, Iconic.ice, and Inolofatseng Mokgoko
+- [x] Validate that unrelated chat remains philosophical while official I.M.E. answers cite the official source
+- [ ] Publish the verified official-information update and deliver the refreshed version
