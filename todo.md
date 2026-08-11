@@ -208,17 +208,17 @@
 - [x] Add ElevenLabs speech-to-text integration with browser speech-recognition fallback
 - [x] Validate and preserve required platform attribution boundaries while reducing visual competition with the app UI
 - [x] Add or update tests for settings application and speech-provider fallback behavior
-- [ ] Validate, publish, and deliver the completed refresh
+- [x] Validate, publish, and deliver the completed refresh
 
 ## GitHub Pages Static Entry Point
 - [x] Add a GitHub Pages-compatible static project landing page that directs visitors to the live full-stack application
-- [ ] Configure and verify GitHub Pages publication without misrepresenting its server, database, or authentication limitations
-- [ ] Push the refreshed settings and ElevenLabs source changes to the public repository
+- [x] Configure and verify GitHub Pages publication without misrepresenting its server, database, or authentication limitations
+- [x] Push the refreshed settings and ElevenLabs source changes to the public repository
 
 ## GitHub Pages Static Entry Point
 - [x] Add a GitHub Pages-compatible static project landing page that directs visitors to the live full-stack application
-- [ ] Configure and verify GitHub Pages publication without misrepresenting its server, database, or authentication limitations
-- [ ] Push the refreshed settings and ElevenLabs source changes to the public repository
+- [x] Configure and verify GitHub Pages publication without misrepresenting its server, database, or authentication limitations
+- [x] Push the refreshed settings and ElevenLabs source changes to the public repository
 
 ## IME TrustPass Shared Authentication
 - [x] Inspect IME TrustPass authentication capabilities and integration documentation
