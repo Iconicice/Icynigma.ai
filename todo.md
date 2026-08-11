@@ -148,7 +148,7 @@
 ## History
 - [x] Preserved original UI template checkpoint 583e4197
 - [x] Preserved latest glass-morphism checkpoint 9b024ff3
-- [ ] Save voice-input and smart-sidebar checkpoint after validation
+- [x] Save voice-input and smart-sidebar checkpoint after validation
 
 ## Complete Source Package & GitHub Delivery
 - [x] Audit all source, configuration, documentation, and deployment files
@@ -169,8 +169,8 @@
 - [ ] Deliver repository URL and source archive
 
 ## Complete Portable Source Scope
-- [ ] Include all portable source, tests, documentation, design assets, PWA files, migrations, configuration, and setup files in GitHub publication
-- [ ] Exclude only credentials, environment files, local database data, dependencies, Git internals, logs, and generated build artifacts
+- [x] Include all portable source, tests, documentation, design assets, PWA files, migrations, configuration, and setup files in GitHub publication
+- [x] Exclude only credentials, environment files, local database data, dependencies, Git internals, logs, and generated build artifacts
 
 ## Autonomous Optimization & Branded PWA Upgrade
 - [x] Preserve current stable checkpoint before broad refinements
@@ -189,3 +189,7 @@
 - [x] Credit Inolofatseng Mokgoko as the creator in the application footer and about content
 - [x] Credit Inolofatseng Mokgoko in README, project documentation, and AI handoff materials
 - [ ] Include creator credit in GitHub repository metadata and release documentation
+
+## Connected-Service Finalization
+- [ ] Confirm the active GitHub connection can publish and verify the public source repository
+- [ ] Apply only relevant connected-service updates while preserving local data, authentication, and privacy boundaries
