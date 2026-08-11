@@ -158,15 +158,15 @@
 - [x] Add an AI handoff/project context file for ChatGPT, DeepSeek, and Gemini
 - [x] Create a complete downloadable source archive
 - [x] Run tests and production build on the final source state
-- [ ] Save the final GitHub-ready checkpoint
-- [ ] Deliver the source archive and project version to the user
+- [x] Save the final GitHub-ready checkpoint
+- [x] Deliver the source archive and project version to the user
 
 ## Public GitHub Publication
 - [x] Inspect authenticated GitHub access and repository state
 - [x] Create or update public repository iconicice/Icynigma.ai
 - [x] Push complete source, documentation, migrations, and configuration
 - [x] Verify public GitHub repository contents
-- [ ] Deliver repository URL and source archive
+- [x] Deliver repository URL and source archive
 
 ## Complete Portable Source Scope
 - [x] Include all portable source, tests, documentation, design assets, PWA files, migrations, configuration, and setup files in GitHub publication
@@ -183,7 +183,7 @@
 - [x] Add or update Vitest coverage for new behavior
 - [x] Test build, responsive layouts, PWA assets, and core user flows
 - [x] Publish complete source and refinements to GitHub
-- [ ] Deliver updated live site URL and downloadable source package
+- [x] Deliver updated live site URL and downloadable source package
 
 ## Creator Credit
 - [x] Credit Inolofatseng Mokgoko as the creator in the application footer and about content
