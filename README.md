@@ -1,6 +1,6 @@
 # Icynigma.ai - Philosophical AI Chatbot
 
-> A sophisticated, full-stack philosophical AI chatbot with dark theme aesthetics and contemplative dialogue.
+> A full-stack philosophical AI chatbot with a midnight-purple 3D glass-morphism interface, contemplative dialogue, persistent conversations, voice playback, and PWA support.
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -9,12 +9,15 @@
 ## 🌟 Features
 
 - **Philosophical AI Chat** - Engage in profound conversations about existence, consciousness, and meaning
-- **Dark Theme** - Midnight purple aesthetic with eerie, contemplative atmosphere
-- **Full-Stack TypeScript** - Type-safe end-to-end development
-- **Real-time Chat** - Instant messaging with persistent history
-- **User Authentication** - Secure OAuth integration
-- **Responsive Design** - Works on desktop and mobile
-- **Production Ready** - Tested, documented, and optimized
+- **3D Glass-Morphism UI** - Translucent surfaces, blur, luminous gradients, depth effects, and futuristic typography
+- **Philosophical AI Chat** - Engage in conversations about existence, consciousness, meaning, and reality
+- **Persistent Multi-Conversation Chat** - Dedicated threads with create, switch, and delete controls
+- **Text-to-Speech** - Piper neural voice support with Web Speech API fallback and configurable playback
+- **User Authentication** - Secure Manus OAuth sessions with HTTP-only cookies
+- **PWA Support** - Installable web app manifest, service worker, and offline asset caching
+- **Responsive and Accessible UX** - Mobile layouts, keyboard focus states, semantic controls, and reduced-motion support
+- **Full-Stack TypeScript** - Type-safe React, Express, tRPC, Drizzle, and Vitest workflow
+- **Production Ready** - Tested, documented, optimized, and prepared for GitHub or Replit deployment
 
 ## 🚀 Quick Start (Replit)
 
@@ -54,9 +57,8 @@ cd icynigma
 # Install dependencies
 pnpm install
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your credentials
+# Configure the required environment variables in your hosting provider or local secret manager.
+# Do not commit .env files or real credentials.
 
 # Set up database
 pnpm db:push
@@ -70,6 +72,12 @@ The app will be available at `http://localhost:3000`
 ### Replit Deployment
 
 See [REPLIT_QUICK_START.md](./REPLIT_QUICK_START.md) for step-by-step instructions.
+
+### Manus Deployment and Export
+
+For deployment inside Manus, import the complete source directory as a web project or use the existing project checkpoint. Configure the required values through the Manus project **Secrets** panel rather than committing a `.env` file. The core variables are `DATABASE_URL`, `JWT_SECRET`, `VITE_APP_ID`, `OAUTH_SERVER_URL`, `VITE_OAUTH_PORTAL_URL`, `BUILT_IN_FORGE_API_URL`, `BUILT_IN_FORGE_API_KEY`, `VITE_FRONTEND_FORGE_API_URL`, `VITE_FRONTEND_FORGE_API_KEY`, `OWNER_NAME`, and `OWNER_OPEN_ID`. Optional voice, analytics, and Ollama variables may be added only when those integrations are enabled.
+
+Run `pnpm install`, `pnpm check`, `pnpm test`, and `pnpm build` before creating a checkpoint. Manus uses the project build configuration to compile the Vite frontend and bundled Node server; do not hardcode a production port. After a successful checkpoint, the project is available through its Manus domain and the checkpoint can be rolled back from version history. To move the source to GitHub, export the project from the Manus Management UI or upload the supplied `Icynigma.ai-source-package.zip` to a new public repository named `Icynigma.ai`, then configure the same secrets in the target hosting provider.
 
 ## 📁 Project Structure
 
@@ -272,11 +280,16 @@ pnpm build
 pnpm start
 ```
 
-## 📖 Documentation
+## 📖 Documentation and AI Import
 
 - [REPLIT_QUICK_START.md](./REPLIT_QUICK_START.md) - Replit deployment guide
-- [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) - Complete technical docs
+- [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) - Complete architecture, API, database, design, and testing reference
+- [AI_HANDOFF.md](./AI_HANDOFF.md) - Import and extension brief for ChatGPT, DeepSeek, Gemini, and other coding assistants
+- [FEATURE_VERIFICATION.md](./FEATURE_VERIFICATION.md) - Feature verification checklist
+- [UX_UI_ANALYSIS.md](./UX_UI_ANALYSIS.md) - UX/UI design analysis
 - Inline code comments - Implementation details
+
+To publish the source, create a public repository named `Icynigma.ai`, upload the repository contents, configure secrets in the repository or hosting provider settings, and run the validation commands below before deployment. The project intentionally excludes secrets, generated build output, and dependency directories from source distribution.
 
 ## 🚀 Performance
 
@@ -288,6 +301,7 @@ pnpm start
 ## 🎯 Roadmap
 
 - [ ] Voice interaction (speech-to-text)
+- [ ] Smart adaptive sidebar with search, grouping, and topic suggestions
 - [ ] Conversation export (PDF/Markdown)
 - [ ] Philosophy topic filters
 - [ ] Concept visualization

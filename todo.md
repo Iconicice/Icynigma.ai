@@ -132,3 +132,60 @@
 - [x] Performance optimized
 - [x] All 48 tests passing
 - [x] Production ready
+
+## Voice Input & Smart Sidebar Upgrade
+- [ ] Add browser voice input with microphone permission handling
+- [ ] Add speech-recognition fallback and unsupported-browser messaging
+- [ ] Add accessible recording, listening, and transcription states
+- [ ] Add smart sidebar search and conversation filtering
+- [ ] Add smart sidebar conversation grouping and active-context summary
+- [ ] Add suggested philosophical prompts based on the active conversation
+- [ ] Add responsive mobile sidebar toggle and persistence
+- [ ] Integrate voice input and smart sidebar into ChatRedesigned
+- [ ] Add tests for voice-input state handling and smart-sidebar filtering
+- [ ] Run build, test, and responsive verification before checkpoint
+
+## History
+- [x] Preserved original UI template checkpoint 583e4197
+- [x] Preserved latest glass-morphism checkpoint 9b024ff3
+- [ ] Save voice-input and smart-sidebar checkpoint after validation
+
+## Complete Source Package & GitHub Delivery
+- [x] Audit all source, configuration, documentation, and deployment files
+- [x] Verify secrets and environment files are excluded from the package
+- [x] Update GitHub-ready README with current 3D glass-morphism features
+- [ ] Add import, local-development, Replit, and Manus deployment instructions
+- [x] Add an AI handoff/project context file for ChatGPT, DeepSeek, and Gemini
+- [x] Create a complete downloadable source archive
+- [x] Run tests and production build on the final source state
+- [ ] Save the final GitHub-ready checkpoint
+- [ ] Deliver the source archive and project version to the user
+
+## Public GitHub Publication
+- [ ] Inspect authenticated GitHub access and repository state
+- [ ] Create or update public repository iconicice/Icynigma.ai
+- [ ] Push complete source, documentation, migrations, and configuration
+- [ ] Verify public GitHub repository contents
+- [ ] Deliver repository URL and source archive
+
+## Complete Portable Source Scope
+- [ ] Include all portable source, tests, documentation, design assets, PWA files, migrations, configuration, and setup files in GitHub publication
+- [ ] Exclude only credentials, environment files, local database data, dependencies, Git internals, logs, and generated build artifacts
+
+## Autonomous Optimization & Branded PWA Upgrade
+- [ ] Preserve current stable checkpoint before broad refinements
+- [ ] Audit app behavior, PWA behavior, bundle size, and error paths
+- [ ] Complete browser voice input with permission, listening, transcript, and fallback states
+- [ ] Complete smart sidebar with search, grouping, active-context insights, and suggested prompts
+- [ ] Refine settings and interaction feedback for user-controlled preferences
+- [ ] Create branded PWA icon set from supplied logo
+- [ ] Update manifest, HTML metadata, and service worker for branded install/offline behavior
+- [ ] Add or update Vitest coverage for new behavior
+- [ ] Test build, responsive layouts, PWA assets, and core user flows
+- [ ] Publish complete source and refinements to GitHub
+- [ ] Deliver updated live site URL and downloadable source package
+
+## Creator Credit
+- [ ] Credit Inolofatseng Mokgoko as the creator in the application footer and about content
+- [ ] Credit Inolofatseng Mokgoko in README, project documentation, and AI handoff materials
+- [ ] Include creator credit in GitHub repository metadata and release documentation
