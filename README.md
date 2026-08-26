@@ -380,3 +380,7 @@ IME TrustPass can serve as the shared sign-in experience only once it exposes a 
 ## Official I.M.E. information reference
 
 For questions specifically about **Ice/Iconic Media Entertainment**, **I.M.E.**, **Iconic.ice**, or **Inolofatseng Mokgoko**, Icynigma adds a curated, source-linked context derived from the designated official site: <https://icemediaent-kbysc8ud.manus.space/>. The response path uses only the documented published facts, includes the official source URL, and states when requested detail is not confirmed. Unrelated prompts retain Icynigma’s standard philosophical conversation behavior.
+
+## Live Voice conversation
+
+Select **Live** beside the composer to begin a hands-free conversation. Icynigma listens for one spoken turn, sends it to the existing secure chat flow, speaks the assistant response using the selected speech provider, then resumes listening. Selecting **Stop** interrupts the current playback and ends the session. Live Voice uses the browser's speech-recognition and speech-synthesis capabilities; the usual typed chat and manual microphone controls remain available when either capability is unavailable. The setting is applied through the existing **Apply changes** workflow and stays local to the browser.

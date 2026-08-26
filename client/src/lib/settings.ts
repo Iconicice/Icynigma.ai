@@ -12,6 +12,7 @@ export interface UserSettings {
   ttsSpeed: number;
   accentColor: string;
   voiceInputEnabled: boolean;
+  liveVoiceEnabled: boolean;
   voiceInputProvider: VoiceInputProviderOption;
   sidebarMode: "smart" | "compact";
 }
@@ -26,6 +27,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   ttsSpeed: 1,
   accentColor: "#a78bfa",
   voiceInputEnabled: true,
+  liveVoiceEnabled: true,
   voiceInputProvider: "elevenlabs",
   sidebarMode: "smart",
 };
@@ -46,6 +48,7 @@ export function normalizeSettings(value: unknown): UserSettings {
     ttsSpeed: typeof candidate.ttsSpeed === "number" && candidate.ttsSpeed >= 0.5 && candidate.ttsSpeed <= 2 ? candidate.ttsSpeed : DEFAULT_SETTINGS.ttsSpeed,
     accentColor: typeof candidate.accentColor === "string" && /^#[0-9a-fA-F]{6}$/.test(candidate.accentColor) ? candidate.accentColor : DEFAULT_SETTINGS.accentColor,
     voiceInputEnabled: typeof candidate.voiceInputEnabled === "boolean" ? candidate.voiceInputEnabled : DEFAULT_SETTINGS.voiceInputEnabled,
+    liveVoiceEnabled: typeof candidate.liveVoiceEnabled === "boolean" ? candidate.liveVoiceEnabled : DEFAULT_SETTINGS.liveVoiceEnabled,
     voiceInputProvider: voiceInputProviders.includes(candidate.voiceInputProvider as VoiceInputProviderOption) ? candidate.voiceInputProvider as VoiceInputProviderOption : DEFAULT_SETTINGS.voiceInputProvider,
     sidebarMode: candidate.sidebarMode === "compact" ? "compact" : "smart",
   };

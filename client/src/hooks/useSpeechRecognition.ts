@@ -6,6 +6,7 @@ export type VoiceInputStatus = "idle" | "listening" | "error" | "unsupported";
 type UseSpeechRecognitionOptions = {
   onFinalTranscript: (text: string) => void;
   language?: string;
+  stopAfterFinal?: boolean;
 };
 
 const errorMessages: Record<string, string> = {
@@ -16,13 +17,16 @@ const errorMessages: Record<string, string> = {
   network: "Speech recognition needs a network connection. Check your connection and try again.",
 };
 
-export function useSpeechRecognition({ onFinalTranscript, language }: UseSpeechRecognitionOptions) {
+export function useSpeechRecognition({ onFinalTranscript, language, stopAfterFinal = false }: UseSpeechRecognitionOptions) {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const stopAfterFinalRef = useRef(stopAfterFinal);
   const [status, setStatus] = useState<VoiceInputStatus>(() =>
     isSpeechRecognitionSupported() ? "idle" : "unsupported",
   );
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => { stopAfterFinalRef.current = stopAfterFinal; }, [stopAfterFinal]);
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop();
@@ -53,7 +57,10 @@ export function useSpeechRecognition({ onFinalTranscript, language }: UseSpeechR
         else interim += transcript;
       }
       setInterimTranscript(interim.trim());
-      if (finalText.trim()) onFinalTranscript(finalText.trim());
+      if (finalText.trim()) {
+        onFinalTranscript(finalText.trim());
+        if (stopAfterFinalRef.current) recognition.stop();
+      }
     };
     recognition.onerror = (event) => {
       if (event.error === "aborted") return;

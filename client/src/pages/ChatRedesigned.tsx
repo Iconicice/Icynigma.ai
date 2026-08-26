@@ -246,6 +246,7 @@ export default function ChatRedesigned() {
                     emptyStateMessage={activeConversationId ? "This thread is quiet. What question should wake it?" : "Begin with a question, and Icynigma will create a new thread for it."}
                     suggestedPrompts={undefined}
                     voiceInputEnabled={settings.voiceInputEnabled}
+                    liveVoiceEnabled={settings.liveVoiceEnabled}
                     voiceInputProvider={settings.voiceInputProvider}
                     ttsProvider={settings.ttsProvider}
                     ttsSpeed={settings.ttsSpeed}

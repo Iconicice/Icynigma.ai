@@ -10,6 +10,9 @@ interface TTSPlayerProps {
   onSynthesizing?: (synthesizing: boolean) => void;
   preferredProvider?: TTSProviderOption;
   preferredSpeed?: number;
+  autoPlay?: boolean;
+  stopSignal?: number;
+  onPlaybackStateChange?: (state: "idle" | "speaking" | "error") => void;
 }
 
 const voices = [
@@ -20,7 +23,7 @@ const voices = [
   { id: "en_US-ryan-medium", name: "Ryan", category: "US Male", tone: "Smooth" },
 ];
 
-export function TTSPlayer({ text, onSynthesizing, preferredProvider = "elevenlabs", preferredSpeed = 1 }: TTSPlayerProps) {
+export function TTSPlayer({ text, onSynthesizing, preferredProvider = "elevenlabs", preferredSpeed = 1, autoPlay = false, stopSignal = 0, onPlaybackStateChange }: TTSPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [provider, setProvider] = useState<TTSProviderOption>(preferredProvider);
@@ -41,6 +44,7 @@ export function TTSPlayer({ text, onSynthesizing, preferredProvider = "elevenlab
     setIsPlaying(false);
     setIsSynthesizing(false);
     onSynthesizing?.(false);
+    onPlaybackStateChange?.("idle");
   };
 
   const speakWithBrowser = () => {
@@ -49,10 +53,11 @@ export function TTSPlayer({ text, onSynthesizing, preferredProvider = "elevenlab
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = speed;
-    utterance.onend = () => { setIsPlaying(false); setIsSynthesizing(false); onSynthesizing?.(false); };
-    utterance.onerror = () => { setIsPlaying(false); setIsSynthesizing(false); onSynthesizing?.(false); setError("Browser speech could not play this response."); };
+    utterance.onend = () => { setIsPlaying(false); setIsSynthesizing(false); onSynthesizing?.(false); onPlaybackStateChange?.("idle"); };
+    utterance.onerror = () => { setIsPlaying(false); setIsSynthesizing(false); onSynthesizing?.(false); onPlaybackStateChange?.("error"); setError("Browser speech could not play this response."); };
     window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
+    onPlaybackStateChange?.("speaking");
   };
 
   const synthesizeRemote = async () => {
@@ -78,6 +83,7 @@ export function TTSPlayer({ text, onSynthesizing, preferredProvider = "elevenlab
       audioRef.current.playbackRate = speed;
       await audioRef.current.play();
       setIsPlaying(true);
+      onPlaybackStateChange?.("speaking");
     } catch (remoteError) {
       setError(remoteError instanceof Error ? `${remoteError.message} Falling back to browser speech.` : "Cloud speech failed. Falling back to browser speech.");
       setProvider("web-speech");
@@ -104,6 +110,16 @@ export function TTSPlayer({ text, onSynthesizing, preferredProvider = "elevenlab
     else void synthesizeRemote();
   };
 
+  useEffect(() => {
+    if (!autoPlay || !text) return;
+    if (provider === "web-speech") speakWithBrowser();
+    else void synthesizeRemote();
+    // This intentionally starts once per mounted response. Provider changes remain manual controls.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoPlay, text]);
+
+  useEffect(() => { if (stopSignal > 0) stopAll(); }, [stopSignal]);
+
   return (
     <div className="w-full space-y-3 rounded-lg border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-4 backdrop-blur-sm transition-all duration-300 hover:border-accent/40">
       <button type="button" onClick={() => setIsExpanded((current) => !current)} className="flex w-full items-center justify-between gap-3 transition-colors hover:text-accent">
@@ -116,7 +132,7 @@ export function TTSPlayer({ text, onSynthesizing, preferredProvider = "elevenlab
         <div className="space-y-2"><div className="flex items-center justify-between"><label className="text-xs font-medium text-secondary-foreground">Playback speed</label><span className="text-sm font-medium text-accent">{speed.toFixed(1)}×</span></div><Slider value={[speed]} onValueChange={(value) => setSpeed(value[0])} min={0.5} max={2} step={0.1} className="w-full" /></div>
         <div className="space-y-2"><label className="text-xs font-medium text-secondary-foreground">Speech engine</label><Select value={provider} onValueChange={(value) => { stopAll(); setProvider(value as TTSProviderOption); setError(null); }}><SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="elevenlabs">ElevenLabs (cloud)</SelectItem><SelectItem value="piper">Piper neural</SelectItem><SelectItem value="web-speech">Browser speech</SelectItem></SelectContent></Select></div>
       </div>}
-      <audio ref={audioRef} onEnded={() => setIsPlaying(false)} onError={() => setError("Audio playback failed. Try browser speech.")} className="hidden" />
+      <audio ref={audioRef} onEnded={() => { setIsPlaying(false); onPlaybackStateChange?.("idle"); }} onError={() => { onPlaybackStateChange?.("error"); setError("Audio playback failed. Try browser speech."); }} className="hidden" />
     </div>
   );
 }

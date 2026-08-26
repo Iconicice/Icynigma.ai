@@ -230,3 +230,16 @@
 - [x] Add a controlled official-reference response path for questions about Iconic Media Entertainment, Iconic.ice, and Inolofatseng Mokgoko
 - [x] Validate that unrelated chat remains philosophical while official I.M.E. answers cite the official source
 - [x] Publish the verified official-information update and deliver the refreshed version
+
+## Live Voice Conversation
+- [x] Audit existing speech recognition, synthesis, and chat request flow for live-mode integration
+- [x] Add a continuous Live Voice mode with microphone permission, start/stop, interruption, and automatic spoken replies
+- [x] Add accessible state feedback and browser capability fallback for Live Voice
+- [x] Add unit tests for Live Voice state transitions and support detection
+- [ ] Validate the Live Voice experience, production build, and publish the refreshed version
+
+## Offline Android Personal Agent Blueprint
+- [x] Define an offline-first Android architecture with local model, on-device speech, local memory, and Wi-Fi-only update policies
+- [x] Define explicit consent, permission, confirmation, and audit boundaries for notifications, email, messaging, and device actions
+- [x] Create a Taskade-ready master prompt and Android Studio implementation blueprint with module contracts and starter code
+- [x] Document Taskade and Replit demo limits, Android Studio build steps, and private APK distribution guidance
