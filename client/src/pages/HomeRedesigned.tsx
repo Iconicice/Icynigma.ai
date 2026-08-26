@@ -77,6 +77,7 @@ export default function HomeRedesigned() {
         {/* Hero Section */}
         <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center space-y-8">
+            {!isAuthenticated && <p className="mx-auto max-w-xl rounded-xl border border-purple-400/15 bg-slate-950/25 px-4 py-2 text-xs text-purple-100/65">Secure sign-in may open your account provider’s passkey or verification screen. If it appears to pause, complete that check or select <strong>Try another way</strong> to choose another approved method.</p>}
             {/* Badge */}
             <div className="inline-flex items-center gap-2 glass-effect-dark px-4 py-2 rounded-full border border-purple-500/30">
               <Sparkles className="w-4 h-4 text-purple-400" />

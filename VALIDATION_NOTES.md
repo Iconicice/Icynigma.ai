@@ -21,3 +21,7 @@ The public TrustPass landing page exposes email/password, Manus, and WhatsApp si
 - The live full-stack application loaded successfully at `https://icynigma-xkxmkqhz.manus.space` after checkpoint `c798235c`.
 - GitHub Pages was configured from `main:/docs`, reached `built` status, and rendered successfully at `https://iconicice.github.io/Icynigma.ai/`.
 - The GitHub Pages page explicitly identifies itself as a static entry point and links visitors to the secure live application and public source repository.
+
+## Live Voice and Sign-in Verification — 2026-08-26
+
+The Live Voice UI was verified through browser-like component tests covering unsupported-browser messaging, visible start/stop controls, assistant-response autoplay, playback-completion handoff to listening, and interruption. The landing page was visually checked after adding clear guidance for external passkey or alternate verification. The live OAuth route correctly advances to the account provider; completing the external passkey challenge requires the account holder and is intentionally not automated or recorded by Icynigma. TypeScript checks, 66 tests, and the production build passed before publication.

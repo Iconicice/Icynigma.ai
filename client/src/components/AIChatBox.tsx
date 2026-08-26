@@ -191,7 +191,10 @@ export function AIChatBox({
   useEffect(() => {
     const viewport = scrollAreaRef.current?.querySelector("[data-radix-scroll-area-viewport]") as HTMLDivElement | null;
     if (!viewport) return;
-    requestAnimationFrame(() => viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" }));
+    requestAnimationFrame(() => {
+      if (typeof viewport.scrollTo === "function") viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" });
+      else viewport.scrollTop = viewport.scrollHeight;
+    });
   }, [messages.length, isLoading]);
 
   const submitMessage = (content: string) => { const trimmed = content.trim(); if (!trimmed || isLoading) return; onSendMessage(trimmed); setInput(""); textareaRef.current?.focus(); };

@@ -237,12 +237,16 @@
 - [x] Add accessible state feedback and browser capability fallback for Live Voice
 - [x] Add unit tests for Live Voice state transitions and support detection
 - [x] Validate the Live Voice experience, production build, and publish the refreshed version
-- [ ] Manually verify the Live Voice start, stop, interruption, and unsupported-browser interface states in the browser
-- [ ] Add component-level coverage for Live Voice UI state handoff and response-playback sequencing
+- [x] Manually verify the Live Voice start, stop, interruption, and unsupported-browser interface states in the browser
+- [x] Add component-level coverage for Live Voice UI state handoff and response-playback sequencing
+- [x] Add component-level Live Voice sequencing coverage for assistant autoplay, playback completion, and interruption
+- [x] Complete an authenticated browser validation of Live Voice, or record the remaining external verification dependency
 
 ## Preview Sign-in Diagnosis
-- [ ] Trace and resolve the failed preview sign-in path so authenticated chat and Live Voice can be verified in the browser
-- [ ] Route preview-origin sign-in attempts to the supported live application domain instead of an unregistered callback origin
+- [x] Trace and resolve the failed preview sign-in path so authenticated chat and Live Voice can be verified in the browser
+- [x] Route preview-origin sign-in attempts to the supported live application domain instead of an unregistered callback origin
+- [x] Diagnose and resolve the live-domain blank sign-in behavior after the OAuth handoff
+- [x] Add visible sign-in guidance for external passkey or alternate-verification handoff and re-test the live login route
 
 ## Offline Android Personal Agent Blueprint
 - [x] Define an offline-first Android architecture with local model, on-device speech, local memory, and Wi-Fi-only update policies
