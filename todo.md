@@ -236,7 +236,13 @@
 - [x] Add a continuous Live Voice mode with microphone permission, start/stop, interruption, and automatic spoken replies
 - [x] Add accessible state feedback and browser capability fallback for Live Voice
 - [x] Add unit tests for Live Voice state transitions and support detection
-- [ ] Validate the Live Voice experience, production build, and publish the refreshed version
+- [x] Validate the Live Voice experience, production build, and publish the refreshed version
+- [ ] Manually verify the Live Voice start, stop, interruption, and unsupported-browser interface states in the browser
+- [ ] Add component-level coverage for Live Voice UI state handoff and response-playback sequencing
+
+## Preview Sign-in Diagnosis
+- [ ] Trace and resolve the failed preview sign-in path so authenticated chat and Live Voice can be verified in the browser
+- [ ] Route preview-origin sign-in attempts to the supported live application domain instead of an unregistered callback origin
 
 ## Offline Android Personal Agent Blueprint
 - [x] Define an offline-first Android architecture with local model, on-device speech, local memory, and Wi-Fi-only update policies
