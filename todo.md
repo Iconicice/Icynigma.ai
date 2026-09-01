@@ -253,3 +253,14 @@
 - [x] Define explicit consent, permission, confirmation, and audit boundaries for notifications, email, messaging, and device actions
 - [x] Create a Taskade-ready master prompt and Android Studio implementation blueprint with module contracts and starter code
 - [x] Document Taskade and Replit demo limits, Android Studio build steps, and private APK distribution guidance
+
+## Comprehensive Agent Upgrade
+- [x] Preserve the current published release as a rollback point before broad changes
+- [x] Audit the system prompt, official I.M.E. grounding, thread context, and error handling for agent-quality issues
+- [x] Audit Live Voice, speech providers, settings, authentication, PWA, and responsive interaction paths
+- [x] Inspect runtime logs, dependencies, bundle composition, and test coverage for actionable defects
+- [ ] Implement evidence-based agent, reliability, accessibility, and performance improvements
+- [ ] Add or update automated coverage for all changed critical paths
+- [ ] Run TypeScript checks, complete tests, production build, and visual verification
+- [ ] Update release documentation, source archive, and validation notes
+- [ ] Publish the verified release and synchronize the public GitHub main branch
