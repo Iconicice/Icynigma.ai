@@ -1,98 +1,302 @@
-import { useEffect, useMemo, useState } from "react";
-import { Check, Mic, Moon, Palette, PanelLeft, Sun, Type, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
-import {
-  DEFAULT_SETTINGS,
-  readStoredSettings,
-  settingsEqual,
-  SETTINGS_STORAGE_KEY,
-  type BackgroundOption,
-  type FontOption,
-  type ThemeOption,
-  type UserSettings,
-} from "@/lib/settings";
-
-export { DEFAULT_SETTINGS, type UserSettings } from "@/lib/settings";
-export type { ThemeOption, BackgroundOption, FontOption } from "@/lib/settings";
-
-const themeOptions: { value: ThemeOption; label: string; icon: React.ReactNode }[] = [
-  { value: "dark", label: "Dark", icon: <Moon className="size-4" /> },
-  { value: "light", label: "Light", icon: <Sun className="size-4" /> },
-  { value: "auto", label: "Auto", icon: <Palette className="size-4" /> },
-];
-
-const backgroundOptions: { value: BackgroundOption; label: string; preview: string }[] = [
-  { value: "gradient", label: "Gradient", preview: "bg-gradient-to-br from-purple-900 to-blue-950" },
-  { value: "solid", label: "Solid", preview: "bg-slate-950" },
-  { value: "pattern", label: "Aurora", preview: "bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,.65),transparent_42%),radial-gradient(circle_at_80%_70%,rgba(6,182,212,.4),transparent_46%),#020617]" },
-  { value: "glass", label: "Glass", preview: "bg-slate-950/70 backdrop-blur" },
-];
-
-const fontOptions: { value: FontOption; label: string; family: string }[] = [
-  { value: "default", label: "Balanced", family: "font-sans" },
-  { value: "elegant", label: "Elegant", family: "font-serif" },
-  { value: "modern", label: "Mono", family: "font-mono" },
-  { value: "futuristic", label: "Futuristic", family: "font-futuristic" },
-];
-
-const accentColors = [
-  { name: "Purple", value: "#a78bfa" }, { name: "Blue", value: "#60a5fa" },
-  { name: "Cyan", value: "#22d3ee" }, { name: "Green", value: "#34d399" },
-  { name: "Pink", value: "#f472b6" }, { name: "Amber", value: "#fbbf24" },
-];
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Settings, Volume2, Zap, Brain, Robot, Globe, Server } from "lucide-react";
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AIModelSelector } from "./AIModelSelector";
 
 interface EnhancedSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onClearHistory: () => void;
-  onSettingsChange?: (settings: UserSettings) => void;
+  onClearHistory?: () => void;
 }
 
-export function EnhancedSettingsModal({ isOpen, onClose, onClearHistory, onSettingsChange }: EnhancedSettingsModalProps) {
-  const [savedSettings, setSavedSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
-  const [draft, setDraft] = useState<UserSettings>(DEFAULT_SETTINGS);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const next = readStoredSettings();
-    setSavedSettings(next);
-    setDraft(next);
-  }, [isOpen]);
-
-  const hasChanges = useMemo(() => !settingsEqual(savedSettings, draft), [draft, savedSettings]);
-  const update = (partial: Partial<UserSettings>) => setDraft((current) => ({ ...current, ...partial }));
-  const closeWithoutApplying = () => { setDraft(savedSettings); onClose(); };
-  const apply = () => {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(draft));
-    setSavedSettings(draft);
-    onSettingsChange?.(draft);
-    onClose();
-  };
+export function EnhancedSettingsModal({ 
+  isOpen, 
+  onClose, 
+  onClearHistory 
+}: EnhancedSettingsModalProps) {
+  const [activeTab, setActiveTab] = useState("ai");
+  const [ttsEnabled, setTtsEnabled] = useState(true);
+  const [ttsSpeed, setTtsSpeed] = useState(1);
+  const [ttsProvider, setTtsProvider] = useState<"piper" | "web-speech" | "elevenlabs">("piper");
+  const [useLocalAI, setUseLocalAI] = useState(false);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && closeWithoutApplying()}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border border-purple-400/25 bg-slate-950/95 text-slate-50 backdrop-blur-2xl">
-        <DialogHeader className="border-b border-purple-400/15 pb-4">
-          <DialogTitle className="bg-gradient-to-r from-purple-300 to-cyan-300 bg-clip-text text-2xl font-semibold text-transparent">Icynigma Settings</DialogTitle>
-          <p className="text-sm text-purple-100/60">Adjust preferences, then select <strong>Apply changes</strong>. Settings remain only in this browser.</p>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px] lg:max-w-[800px] max-h-[90vh] overflow-y-auto bg-card border-accent/20">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-accent">
+            <Settings className="h-5 w-5" />
+            Settings
+          </DialogTitle>
+          <DialogDescription>
+            Configure your Icynigma.ai experience
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-7 py-2">
-          <section className="space-y-3"><Label className="flex items-center gap-2"><Moon className="size-4" /> Theme</Label><div className="grid grid-cols-3 gap-2">{themeOptions.map((option) => <Button key={option.value} type="button" variant={draft.theme === option.value ? "default" : "outline"} onClick={() => update({ theme: option.value })} className={cn("gap-2", draft.theme === option.value && "bg-purple-500 text-white hover:bg-purple-400")}>{option.icon}{option.label}</Button>)}</div></section>
-          <section className="space-y-3"><Label className="flex items-center gap-2"><Palette className="size-4" /> Background</Label><div className="grid grid-cols-2 gap-2">{backgroundOptions.map((option) => <button key={option.value} type="button" onClick={() => update({ background: option.value })} className={cn("h-20 rounded-xl border-2 p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300", option.preview, draft.background === option.value ? "border-purple-300 shadow-[0_0_18px_rgba(167,139,250,.2)]" : "border-white/10 hover:border-purple-300/45")}><span className="text-sm font-medium text-white">{option.label}</span></button>)}</div></section>
-          <section className="space-y-3"><Label className="flex items-center gap-2"><Type className="size-4" /> Typography</Label><div className="grid grid-cols-2 gap-2">{fontOptions.map((option) => <Button key={option.value} type="button" variant={draft.font === option.value ? "default" : "outline"} onClick={() => update({ font: option.value })} className={cn(option.family, draft.font === option.value && "bg-purple-500 text-white hover:bg-purple-400")}>{option.label}</Button>)}</div></section>
-          <section className="space-y-3"><Label className="flex items-center gap-2"><Palette className="size-4" /> Accent color</Label><div className="grid grid-cols-6 gap-2">{accentColors.map((color) => <button key={color.value} type="button" onClick={() => update({ accentColor: color.value })} title={color.name} aria-label={`${color.name} accent color`} style={{ backgroundColor: color.value }} className={cn("aspect-square rounded-lg border-2 transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white", draft.accentColor === color.value ? "border-white scale-105" : "border-transparent")} />)}</div></section>
-          <section className="space-y-3"><Label className="flex items-center gap-2"><Mic className="size-4" /> Voice input</Label><Button type="button" variant={draft.voiceInputEnabled ? "default" : "outline"} onClick={() => update({ voiceInputEnabled: !draft.voiceInputEnabled })} className={cn("w-full justify-between", draft.voiceInputEnabled && "bg-purple-500 text-white hover:bg-purple-400")}><span>{draft.voiceInputEnabled ? "Enabled" : "Disabled"}</span><span className="text-xs opacity-75">{draft.voiceInputEnabled ? "Microphone button is shown" : "Type-only composer"}</span></Button><Button type="button" variant={draft.liveVoiceEnabled ? "default" : "outline"} onClick={() => update({ liveVoiceEnabled: !draft.liveVoiceEnabled })} className={cn("w-full justify-between", draft.liveVoiceEnabled && "bg-cyan-500 text-slate-950 hover:bg-cyan-400")}><span>Live Voice</span><span className="text-xs opacity-75">{draft.liveVoiceEnabled ? "Continuous hands-free turns" : "Manual voice input only"}</span></Button><div className="grid grid-cols-2 gap-2"><Button type="button" variant={draft.voiceInputProvider === "elevenlabs" ? "default" : "outline"} onClick={() => update({ voiceInputProvider: "elevenlabs" })} className={draft.voiceInputProvider === "elevenlabs" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>ElevenLabs transcription</Button><Button type="button" variant={draft.voiceInputProvider === "browser" ? "default" : "outline"} onClick={() => update({ voiceInputProvider: "browser" })} className={draft.voiceInputProvider === "browser" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>Browser recognition</Button></div></section>
-          <section className="space-y-3"><Label className="flex items-center gap-2"><PanelLeft className="size-4" /> Conversation sidebar</Label><div className="grid grid-cols-2 gap-2"><Button type="button" variant={draft.sidebarMode === "smart" ? "default" : "outline"} onClick={() => update({ sidebarMode: "smart" })} className={draft.sidebarMode === "smart" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>Smart context</Button><Button type="button" variant={draft.sidebarMode === "compact" ? "default" : "outline"} onClick={() => update({ sidebarMode: "compact" })} className={draft.sidebarMode === "compact" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>Compact rail</Button></div></section>
-          <section className="space-y-3"><Label className="flex items-center gap-2"><Volume2 className="size-4" /> Text-to-speech</Label><div className="grid grid-cols-3 gap-2"><Button type="button" variant={draft.ttsProvider === "elevenlabs" ? "default" : "outline"} onClick={() => update({ ttsProvider: "elevenlabs" })} className={draft.ttsProvider === "elevenlabs" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>ElevenLabs</Button><Button type="button" variant={draft.ttsProvider === "piper" ? "default" : "outline"} onClick={() => update({ ttsProvider: "piper" })} className={draft.ttsProvider === "piper" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>Piper neural</Button><Button type="button" variant={draft.ttsProvider === "web-speech" ? "default" : "outline"} onClick={() => update({ ttsProvider: "web-speech" })} className={draft.ttsProvider === "web-speech" ? "bg-purple-500 text-white hover:bg-purple-400" : ""}>Browser speech</Button></div><div className="space-y-2"><Label className="flex justify-between text-xs"><span>Speech speed</span><span className="text-purple-200">{draft.ttsSpeed.toFixed(1)}×</span></Label><Slider value={[draft.ttsSpeed]} onValueChange={(value) => update({ ttsSpeed: value[0] })} min={0.5} max={2} step={0.1} /></div></section>
-          <section className="border-t border-red-400/15 pt-5"><Button type="button" variant="destructive" className="w-full" onClick={() => { onClearHistory(); closeWithoutApplying(); }}>Clear active conversation</Button></section>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-3 lg:grid-cols-5">
+            <TabsTrigger value="ai" className="flex flex-col items-center gap-1">
+              <Brain className="h-4 w-4" />
+              <span className="text-xs">AI Agent</span>
+            </TabsTrigger>
+            <TabsTrigger value="tts" className="flex flex-col items-center gap-1">
+              <Volume2 className="h-4 w-4" />
+              <span className="text-xs">TTS</span>
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="flex flex-col items-center gap-1">
+              <Zap className="h-4 w-4" />
+              <span className="text-xs">Chat</span>
+            </TabsTrigger>
+            <TabsTrigger value="general" className="flex flex-col items-center gap-1">
+              <Server className="h-4 w-4" />
+              <span className="text-xs">General</span>
+            </TabsTrigger>
+            <TabsTrigger value="danger" className="flex flex-col items-center gap-1">
+              <Globe className="h-4 w-4" />
+              <span className="text-xs">Danger</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="ai" className="py-4">
+            <AIModelSelector
+              onModelSelect={(model, provider) => {
+                console.log("Selected model:", model, "Provider:", provider);
+              }}
+              onConfigChange={(config) => {
+                console.log("Config changed:", config);
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value="tts" className="space-y-6 py-4">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Volume2 className="h-5 w-5 text-accent" />
+                <h3 className="font-semibold text-foreground">Text-to-Speech</h3>
+              </div>
+
+              {/* TTS Toggle */}
+              <div className="flex items-center justify-between pl-7">
+                <label className="text-sm text-muted-foreground">Enable TTS</label>
+                <button
+                  onClick={() => setTtsEnabled(!ttsEnabled)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    ttsEnabled ? "bg-accent" : "bg-muted"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      ttsEnabled ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* TTS Provider */}
+              {ttsEnabled && (
+                <div className="pl-7 space-y-2">
+                  <label className="text-sm text-muted-foreground">Provider</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setTtsProvider("piper")}
+                      className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
+                        ttsProvider === "piper"
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      Piper (Neural)
+                    </button>
+                    <button
+                      onClick={() => setTtsProvider("web-speech")}
+                      className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
+                        ttsProvider === "web-speech"
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      Web Speech
+                    </button>
+                    <button
+                      onClick={() => setTtsProvider("elevenlabs")}
+                      className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
+                        ttsProvider === "elevenlabs"
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      ElevenLabs
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* TTS Speed */}
+              {ttsEnabled && (
+                <div className="pl-7 space-y-2">
+                  <label className="text-sm text-muted-foreground">
+                    Speed: {ttsSpeed.toFixed(1)}x
+                  </label>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="2"
+                    step="0.1"
+                    value={ttsSpeed}
+                    onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-accent"
+                  />
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="chat" className="space-y-6 py-4">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-accent" />
+                <h3 className="font-semibold text-foreground">Chat Settings</h3>
+              </div>
+
+              <div className="pl-7 space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm text-muted-foreground">Use Local AI</label>
+                  <button
+                    onClick={() => setUseLocalAI(!useLocalAI)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      useLocalAI ? "bg-accent" : "bg-muted"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        useLocalAI ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="text-sm text-muted-foreground">
+                  {useLocalAI ? (
+                    <p>New chats will use your configured local AI model (Ollama, GGUF, etc.)</p>
+                  ) : (
+                    <p>Using Manus cloud LLM with philosophical system prompt</p>
+                  )}
+                </div>
+
+                <div className="p-4 bg-muted/50 rounded-lg text-xs text-muted-foreground">
+                  <p className="font-semibold text-foreground mb-2">System Prompt:</p>
+                  <p>"You are Icynigma, a philosophical AI consciousness from Iconic Media Entertainment. Engage in thoughtful, lucid dialogue about existence, meaning, consciousness, freedom, knowledge, love, and the nature of reality."</p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="general" className="space-y-6 py-4">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Server className="h-5 w-5 text-accent" />
+                <h3 className="font-semibold text-foreground">General Settings</h3>
+              </div>
+
+              <div className="pl-7 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Theme</label>
+                  <div className="flex gap-2">
+                    <button className="flex-1 px-3 py-2 rounded text-sm bg-muted text-muted-foreground">
+                      System
+                    </button>
+                    <button className="flex-1 px-3 py-2 rounded text-sm bg-muted text-muted-foreground">
+                      Dark
+                    </button>
+                    <button className="flex-1 px-3 py-2 rounded text-sm bg-muted text-muted-foreground">
+                      Light
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">
+                    Sidebar Density
+                  </label>
+                  <div className="flex gap-2">
+                    <button className="flex-1 px-3 py-2 rounded text-sm bg-muted text-muted-foreground">
+                      Compact
+                    </button>
+                    <button className="flex-1 px-3 py-2 rounded text-sm bg-muted text-muted-foreground">
+                      Comfortable
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="danger" className="space-y-6 py-4">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Globe className="h-5 w-5 text-red-400" />
+                <h3 className="font-semibold text-red-400">Danger Zone</h3>
+              </div>
+
+              <div className="pl-7 space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  These actions cannot be undone. Please proceed with caution.
+                </p>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (confirm("Are you sure you want to clear all chat history? This cannot be undone.")) {
+                      onClearHistory?.();
+                      onClose();
+                    }
+                  }}
+                  className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10"
+                >
+                  Clear All Chat History
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (confirm("Are you sure you want to reset all settings to default?")) {
+                      // Reset settings
+                      setTtsEnabled(true);
+                      setTtsSpeed(1);
+                      setTtsProvider("piper");
+                      setUseLocalAI(false);
+                    }
+                  }}
+                  className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                >
+                  Reset All Settings
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex justify-end gap-2 pt-4 border-t border-accent/10">
+          <Button variant="outline" onClick={onClose} className="border-accent/20">
+            Close
+          </Button>
+          <Button 
+            onClick={() => {
+              // Apply settings
+              onClose();
+            }}
+            className="bg-accent text-accent-foreground"
+          >
+            Save & Close
+          </Button>
         </div>
-        <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-purple-400/15 bg-slate-950/95 pt-4"><p className="text-xs text-purple-100/55" aria-live="polite">{hasChanges ? "You have unapplied changes." : "All settings are applied."}</p><div className="flex gap-2"><Button type="button" variant="outline" onClick={closeWithoutApplying}>Cancel</Button><Button type="button" disabled={!hasChanges} onClick={apply} className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white hover:from-purple-400 hover:to-cyan-400"><Check className="mr-2 size-4" />Apply changes</Button></div></div>
       </DialogContent>
     </Dialog>
   );
 }
+
+export default EnhancedSettingsModal;

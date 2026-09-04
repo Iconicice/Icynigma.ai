@@ -7,4 +7,16 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  
+  // Local AI configuration
+  ollamaBaseUrl: process.env.OLLAMA_BASE_URL ?? "http://localhost:11434",
+  defaultAiProvider: process.env.DEFAULT_AI_PROVIDER ?? "ollama",
+  defaultAiModel: process.env.DEFAULT_AI_MODEL ?? "llama3.2:3b",
+  
+  // Custom API for local AI
+  customAiApiUrl: process.env.CUSTOM_AI_API_URL ?? "",
+  customAiApiKey: process.env.CUSTOM_AI_API_KEY ?? "",
+  
+  // ElevenLabs for TTS
+  elevenlabsApiKey: process.env.ELEVENLABS_API_KEY ?? "",
 };
