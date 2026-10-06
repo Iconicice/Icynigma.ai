@@ -1,11 +1,13 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
+import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/HomeRedesigned";
-import Chat from "./pages/ChatRedesigned";
+
+const Home = lazy(() => import("./pages/HomeOriginal"));
+const Chat = lazy(() => import("./pages/ChatOriginal"));
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -34,7 +36,9 @@ function App() {
       >
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground" role="status">Opening Icynigma…</div>}>
+            <Router />
+          </Suspense>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
