@@ -6,7 +6,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
-const Home = lazy(() => import("./pages/HomeOriginal"));
+const Home = lazy(() => import("./pages/HomeRedesigned"));
 const Chat = lazy(() => import("./pages/ChatOriginal"));
 
 function Router() {
