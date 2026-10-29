@@ -7,4 +7,7 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  llmModel: process.env.ICYNIGMA_LLM_MODEL ?? "gemini-3.8-flash",
+  llmFallbackModel: process.env.ICYNIGMA_LLM_FALLBACK_MODEL ?? "gemini-3.5-flash-lite",
+  llmThinkingBudget: Number(process.env.ICYNIGMA_LLM_THINKING_BUDGET ?? "256"),
 };

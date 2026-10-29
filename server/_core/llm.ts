@@ -220,6 +220,10 @@ const assertApiKey = () => {
   }
 };
 
+const isModelCompatibilityError = (status: number, errorText: string) =>
+  status === 404 ||
+  (status === 400 && /model|unsupported|not found|unavailable/i.test(errorText));
+
 const normalizeResponseFormat = ({
   responseFormat,
   response_format,
@@ -280,7 +284,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   } = params;
 
   const payload: Record<string, unknown> = {
-    model: "gemini-2.5-flash",
+    model: ENV.llmModel,
     messages: messages.map(normalizeMessage),
   };
 
@@ -296,10 +300,12 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.tool_choice = normalizedToolChoice;
   }
 
-  payload.max_tokens = 32768
+  payload.max_tokens = 32768;
   payload.thinking = {
-    "budget_tokens": 128
-  }
+    budget_tokens: Number.isFinite(ENV.llmThinkingBudget)
+      ? Math.max(0, Math.min(ENV.llmThinkingBudget, 4096))
+      : 256,
+  };
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,
@@ -312,21 +318,42 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.response_format = normalizedResponseFormat;
   }
 
-  const response = await fetch(resolveApiUrl(), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  const invokeForModel = async (model: string) => {
+    const response = await fetch(resolveApiUrl(), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${ENV.forgeApiKey}`,
+      },
+      body: JSON.stringify({ ...payload, model }),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
-    );
+    if (!response.ok) {
+      const errorText = await response.text();
+      const error = new Error(
+        `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
+      ) as Error & { status?: number; compatibility?: boolean };
+      error.status = response.status;
+      error.compatibility = isModelCompatibilityError(response.status, errorText);
+      throw error;
+    }
+
+    return (await response.json()) as InvokeResult;
+  };
+
+  try {
+    return await invokeForModel(ENV.llmModel);
+  } catch (error) {
+    const fallback = ENV.llmFallbackModel.trim();
+    if (
+      !fallback ||
+      fallback === ENV.llmModel ||
+      !(error as { compatibility?: boolean }).compatibility
+    ) {
+      throw error;
+    }
+
+    console.warn(`[LLM] ${ENV.llmModel} unavailable; falling back to ${fallback}`);
+    return invokeForModel(fallback);
   }
-
-  return (await response.json()) as InvokeResult;
 }

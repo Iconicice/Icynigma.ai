@@ -22,7 +22,7 @@ Icynigma.ai utilizes a modern, type-safe full-stack architecture designed for se
 | **Backend** | Express 4, tRPC 11, Node.js 22+ | Type-safe RPC API router, session management, middleware orchestration [3] |
 | **Database** | Drizzle ORM, MySQL / TiDB / SQLite | Relational schema management, type-safe queries, conversation persistence [3] |
 | **Authentication** | Manus OAuth, JWT, HTTP-only cookies | Secure user sessions, role-based access control, cryptographic token signing [3] |
-| **AI Integration** | Manus LLM API, Custom System Prompts | Philosophical reasoning engine, context-aware dialogue generation |
+| **AI Integration** | Server-side Manus Forge LLM route with Gemini 3.8 Flash default and Gemini 3.5 Flash-Lite compatibility fallback | Philosophical reasoning engine, bounded context, structured server-side model selection |
 | **Voice / TTS** | Piper TTS (Neural) & Web Speech API | Multi-voice neural speech synthesis with speed control and fallback mechanisms [4] |
 | **Build & Tooling** | Vite, esbuild, Vitest | Lightning-fast HMR, production bundling, comprehensive test coverage (48 passing tests) [2] |
 

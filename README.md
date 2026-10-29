@@ -19,6 +19,20 @@
 - **Full-Stack TypeScript** - Type-safe React, Express, tRPC, Drizzle, and Vitest workflow
 - **Production Ready** - Tested, documented, optimized, and prepared for GitHub or Replit deployment
 
+## Current model stack
+
+The online server-side default is **Gemini 3.8 Flash** (`gemini-3.8-flash`), the newest model verified to be returned directly by this project’s Forge route. A request for Gemini 4 Argon is accepted by the route but currently normalized to Gemini 3.5 Flash-Lite, so Icynigma uses the verified Gemini 3.8 route in production and falls back to **Gemini 3.5 Flash-Lite** (`gemini-3.5-flash-lite`). The model is selected server-side and never exposed as a client secret.
+
+Set these optional server variables to control the model without editing source code:
+
+```bash
+ICYNIGMA_LLM_MODEL=gemini-3.8-flash
+ICYNIGMA_LLM_FALLBACK_MODEL=gemini-3.5-flash-lite
+ICYNIGMA_LLM_THINKING_BUDGET=256
+```
+
+The browser Live Voice path continues to use the existing ElevenLabs/device fallbacks. The Android offline path remains separate: it uses the locally downloaded Gemma 3n/LiteRT-LM adapter and must not claim that it has current online knowledge while offline.
+
 ## 🚀 Quick Start (Replit)
 
 ### 1. Create Replit Project
@@ -141,6 +155,11 @@ OWNER_OPEN_ID=your_open_id
 # Manus LLM
 BUILT_IN_FORGE_API_URL=https://api.manus.im
 BUILT_IN_FORGE_API_KEY=your_api_key
+
+# Optional online model selection
+ICYNIGMA_LLM_MODEL=gemini-3.8-flash
+ICYNIGMA_LLM_FALLBACK_MODEL=gemini-3.5-flash-lite
+ICYNIGMA_LLM_THINKING_BUDGET=256
 VITE_FRONTEND_FORGE_API_KEY=your_frontend_key
 VITE_FRONTEND_FORGE_API_URL=https://api.manus.im
 
