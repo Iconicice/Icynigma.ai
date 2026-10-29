@@ -259,8 +259,8 @@
 - [x] Audit the system prompt, official I.M.E. grounding, thread context, and error handling for agent-quality issues
 - [x] Audit Live Voice, speech providers, settings, authentication, PWA, and responsive interaction paths
 - [x] Inspect runtime logs, dependencies, bundle composition, and test coverage for actionable defects
-- [ ] Implement evidence-based agent, reliability, accessibility, and performance improvements
-- [ ] Add or update automated coverage for all changed critical paths
-- [ ] Run TypeScript checks, complete tests, production build, and visual verification
-- [ ] Update release documentation, source archive, and validation notes
-- [ ] Publish the verified release and synchronize the public GitHub main branch
+- [x] Implement evidence-based agent, reliability, accessibility, and performance improvements
+- [x] Add or update automated coverage for all changed critical paths
+- [x] Run TypeScript checks, complete tests, production build, and visual verification
+- [x] Update release documentation, source archive, and validation notes
+- [x] Publish the verified release and synchronize the public GitHub main branch
