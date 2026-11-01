@@ -7,7 +7,19 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+
+  // Cloud model routing: verified Gemini route with compatibility fallback.
   llmModel: process.env.ICYNIGMA_LLM_MODEL ?? "gemini-3.8-flash",
   llmFallbackModel: process.env.ICYNIGMA_LLM_FALLBACK_MODEL ?? "gemini-3.5-flash-lite",
   llmThinkingBudget: Number(process.env.ICYNIGMA_LLM_THINKING_BUDGET ?? "256"),
+
+  // Offline/local AI configuration. The model is opt-in and requires a local Ollama service.
+  ollamaBaseUrl: process.env.OLLAMA_BASE_URL ?? "http://localhost:11434",
+  defaultAiProvider: process.env.DEFAULT_AI_PROVIDER ?? "ollama",
+  defaultAiModel: process.env.DEFAULT_AI_MODEL ?? "liquid/lfm3-omni",
+  customAiApiUrl: process.env.CUSTOM_AI_API_URL ?? "",
+  customAiApiKey: process.env.CUSTOM_AI_API_KEY ?? "",
+
+  // ElevenLabs credentials remain server-side only.
+  elevenlabsApiKey: process.env.ELEVENLABS_API_KEY ?? "",
 };

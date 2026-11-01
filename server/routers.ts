@@ -4,6 +4,8 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { localAIAgent, type AIProvider, type ModelConfig } from "./_core/local-ai-agent";
+import { ENV } from "./_core/env";
 import {
   clearConversationMessages,
   createConversation,
@@ -15,6 +17,7 @@ import {
   saveConversationMessage,
 } from "./db";
 import { ttsRouter } from "./routers-tts";
+import { aiRouter } from "./routers-ai";
 import { getOfficialImeReference } from "./ime-reference";
 
 const philosophicalSystemPrompt = [
@@ -35,11 +38,18 @@ export const appRouter = router({
     }),
   }),
 
+  ai: aiRouter,
   tts: ttsRouter,
 
   chat: router({
     sendMessage: protectedProcedure
-      .input(z.object({ message: z.string().trim().min(1).max(10_000), conversationId: z.number().int().positive().optional() }))
+      .input(z.object({ 
+        message: z.string().trim().min(1).max(10_000), 
+        conversationId: z.number().int().positive().optional(),
+        useLocalAI: z.boolean().optional(),
+        model: z.string().optional(),
+        provider: z.enum(["ollama", "local-gguf", "manus", "custom"] as const).optional(),
+      }))
       .mutation(async ({ input, ctx }) => {
         const createdConversation = input.conversationId ? null : await createConversation(ctx.user.id, input.message.slice(0, 52));
         const conversationId = input.conversationId ?? createdConversation?.id;
@@ -56,21 +66,48 @@ export const appRouter = router({
         messages.push({ role: "user", content: input.message });
 
         try {
-          const response = await invokeLLM({
-            messages: [{ role: "system", content: [philosophicalSystemPrompt, getOfficialImeReference(input.message)].filter(Boolean).join("\n\n") }, ...messages],
-          });
-          const content = response.choices[0]?.message?.content;
-          const aiMessage = typeof content === "string" && content.trim()
-            ? content
-            : "I am still listening at the threshold of the question. Please try asking that once more.";
+          let aiMessage: string;
+          
+          // Check if user wants to use local AI
+          if (input.useLocalAI) {
+            const provider: AIProvider = input.provider || "ollama";
+            const model = input.model || ENV.defaultAiModel || "llama3.2:3b";
+            
+            const config: ModelConfig = {
+              provider,
+              modelName: model,
+              temperature: 0.7,
+              maxTokens: 4096,
+            };
+            
+            // Use local AI agent
+            const localMessages = messages.map(m => ({ 
+              role: m.role as "user" | "assistant" | "system", 
+              content: m.content 
+            }));
+            
+            aiMessage = await localAIAgent.chat([
+              { role: "system", content: philosophicalSystemPrompt },
+              ...localMessages,
+            ], config);
+          } else {
+            // Use cloud LLM (Manus)
+            const response = await invokeLLM({
+              messages: [{ role: "system", content: [philosophicalSystemPrompt, getOfficialImeReference(input.message)].filter(Boolean).join("\n\n") }, ...messages],
+            });
+            const content = response.choices[0]?.message?.content;
+            aiMessage = typeof content === "string" && content.trim()
+              ? content
+              : "I am still listening at the threshold of the question. Please try asking that once more.";
+          }
 
           await saveConversationMessage(ctx.user.id, conversationId, "assistant", aiMessage);
-          return { message: aiMessage };
+          return { message: aiMessage, provider: input.useLocalAI ? input.provider || "ollama" : "manus" };
         } catch (error) {
           const fallback = "The thread of thought was interrupted before I could respond. Please try again in a moment.";
           console.error("[Chat] LLM request failed:", error instanceof Error ? error.message : error);
           await saveConversationMessage(ctx.user.id, conversationId, "assistant", fallback);
-          return { message: fallback };
+          return { message: fallback, provider: "fallback" };
         }
       }),
 
