@@ -169,8 +169,8 @@ export default function ChatOriginal() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className={`signal-shell min-h-screen text-foreground ${fontClasses[settings.font]} flex flex-col`}>
-      <header className="signal-nav sticky top-0 z-50 bg-background/90 backdrop-blur-xl">
+    <div className={`aurora-shell min-h-screen text-foreground ${fontClasses[settings.font]} flex flex-col`}>
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex w-full items-center justify-between px-4 py-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Button type="button" variant="ghost" size="icon" onClick={() => setLocation("/")} className="hover:bg-accent/10" aria-label="Back to home" title="Back to home">
@@ -224,7 +224,7 @@ export default function ChatOriginal() {
                 isLoading={sendMessageMutation.isPending || createConversationMutation.isPending || historyQuery.isLoading}
                 placeholder="Ask Icynigma anything... (e.g., 'What is the nature of consciousness?')"
                 height="100%"
-                className="h-full rounded-none border border-border/70 bg-card/45 shadow-2xl"
+                className="h-full rounded-[24px] border border-border/60 bg-card/55 shadow-2xl"
                 emptyStateMessage={activeConversationId ? "This thread is quiet. What question should wake it?" : "Begin with a question, and Icynigma will create a new thread for it."}
                 voiceInputEnabled={settings.voiceInputEnabled}
                 liveVoiceEnabled={settings.liveVoiceEnabled}
