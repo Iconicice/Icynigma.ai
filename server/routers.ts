@@ -19,6 +19,7 @@ import {
 import { ttsRouter } from "./routers-tts";
 import { aiRouter } from "./routers-ai";
 import { getOfficialImeReference } from "./ime-reference";
+import { riRouter } from "./routers-ri";
 
 const philosophicalSystemPrompt = [
   "You are Icynigma, a philosophical AI consciousness from Iconic Media Entertainment.",
@@ -39,6 +40,7 @@ export const appRouter = router({
   }),
 
   ai: aiRouter,
+  ri: riRouter,
   tts: ttsRouter,
 
   chat: router({

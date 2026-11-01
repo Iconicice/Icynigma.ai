@@ -4,6 +4,7 @@ import { Settings, Volume2, Zap, Brain, Bot, Globe, Server } from "lucide-react"
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AIModelSelector } from "./AIModelSelector";
+import { RISandboxPanel } from "./RISandboxPanel";
 import type { UserSettings } from "@/lib/settings";
 export { DEFAULT_SETTINGS } from "@/lib/settings";
 export type { UserSettings } from "@/lib/settings";
@@ -40,7 +41,7 @@ export function EnhancedSettingsModal({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-3 lg:grid-cols-5">
+          <TabsList className="grid grid-cols-3 lg:grid-cols-6">
             <TabsTrigger value="ai" className="flex flex-col items-center gap-1">
               <Brain className="h-4 w-4" />
               <span className="text-xs">AI Agent</span>
@@ -60,6 +61,10 @@ export function EnhancedSettingsModal({
             <TabsTrigger value="danger" className="flex flex-col items-center gap-1">
               <Globe className="h-4 w-4" />
               <span className="text-xs">Danger</span>
+            </TabsTrigger>
+            <TabsTrigger value="ri" className="flex flex-col items-center gap-1">
+              <Bot className="h-4 w-4" />
+              <span className="text-xs">R.I. Sandbox</span>
             </TabsTrigger>
           </TabsList>
 
@@ -281,6 +286,10 @@ export function EnhancedSettingsModal({
                 </Button>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="ri" className="py-4">
+            <RISandboxPanel />
           </TabsContent>
         </Tabs>
 
