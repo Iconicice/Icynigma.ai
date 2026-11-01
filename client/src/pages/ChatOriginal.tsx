@@ -169,16 +169,16 @@ export default function ChatOriginal() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b from-background via-background to-background/95 text-foreground ${fontClasses[settings.font]} flex flex-col`}>
-      <header className="sticky top-0 z-50 border-b border-accent/10 bg-card/30 backdrop-blur-md">
+    <div className={`signal-shell min-h-screen text-foreground ${fontClasses[settings.font]} flex flex-col`}>
+      <header className="signal-nav sticky top-0 z-50 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex w-full items-center justify-between px-4 py-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Button type="button" variant="ghost" size="icon" onClick={() => setLocation("/")} className="hover:bg-accent/10" aria-label="Back to home" title="Back to home">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="hidden min-w-0 sm:block">
-              <h1 className="truncate text-lg font-bold bg-gradient-to-r from-accent to-accent/60 bg-clip-text text-transparent">Icynigma</h1>
-              <p className="text-xs text-muted-foreground">Philosophical AI Assistant</p>
+              <h1 className="truncate font-futuristic text-sm tracking-[0.2em] text-foreground">ICYNIGMA <span className="text-accent">/</span> WORKSPACE</h1>
+              <p className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground"><span className="signal-pulse" />Reflective channel</p>
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
@@ -214,7 +214,7 @@ export default function ChatOriginal() {
           onUsePrompt={handleSendMessage}
           compact={settings.sidebarMode === "compact"}
         >
-          <div className="mx-auto h-full w-full max-w-4xl px-4 py-4">
+          <div className="mx-auto h-full w-full max-w-5xl px-3 py-3 sm:px-5 sm:py-5">
             {conversationsQuery.isLoading ? (
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground"><div className="text-center"><div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />Opening your thought space…</div></div>
             ) : (
@@ -224,7 +224,7 @@ export default function ChatOriginal() {
                 isLoading={sendMessageMutation.isPending || createConversationMutation.isPending || historyQuery.isLoading}
                 placeholder="Ask Icynigma anything... (e.g., 'What is the nature of consciousness?')"
                 height="100%"
-                className="h-full rounded-lg border border-accent/10"
+                className="h-full rounded-none border border-border/70 bg-card/45 shadow-2xl"
                 emptyStateMessage={activeConversationId ? "This thread is quiet. What question should wake it?" : "Begin with a question, and Icynigma will create a new thread for it."}
                 voiceInputEnabled={settings.voiceInputEnabled}
                 liveVoiceEnabled={settings.liveVoiceEnabled}
@@ -237,7 +237,7 @@ export default function ChatOriginal() {
         </ChatLayout>
       </main>
 
-      <footer className="border-t border-accent/10 bg-card/20 px-4 py-2 text-center text-xs text-muted-foreground backdrop-blur-sm">
+      <footer className="border-t border-border/70 bg-background/70 px-4 py-2 text-center text-[10px] uppercase tracking-[0.16em] text-muted-foreground backdrop-blur-sm">
         <p>Icynigma.ai • Created by Inolofatseng Mokgoko • {user?.name || "Guest"}</p>
       </footer>
 
