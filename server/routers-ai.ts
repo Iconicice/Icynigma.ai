@@ -96,8 +96,8 @@ export const aiRouter = router({
       return { 
         success: true, 
         model: {
-          name: input.modelName,
           ...modelInfo,
+          name: input.modelName,
         },
       };
     }),
@@ -149,7 +149,7 @@ export const aiRouter = router({
 
   // Get user AI configuration
   getUserConfig: protectedProcedure.query(({ ctx }) => {
-    const userId = ctx.user.id;
+    const userId = String(ctx.user.id);
     
     if (!userConfigurations.has(userId)) {
       // Create default configuration
@@ -182,7 +182,7 @@ export const aiRouter = router({
       customApiKey: z.string().optional(),
     }))
     .mutation(({ input, ctx }) => {
-      const userId = ctx.user.id;
+    const userId = String(ctx.user.id);
       
       if (!userConfigurations.has(userId)) {
         userConfigurations.set(userId, getDefaultConfig(userId));
@@ -262,7 +262,7 @@ export const aiRouter = router({
         };
         
         // Test with a simple message
-        const testMessages = [
+        const testMessages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
           { role: "system", content: "You are a helpful assistant. Respond with just 'OK' to this test." },
           { role: "user", content: "Test connection" },
         ];

@@ -71,7 +71,7 @@ export const appRouter = router({
           // Check if user wants to use local AI
           if (input.useLocalAI) {
             const provider: AIProvider = input.provider || "ollama";
-            const model = input.model || ENV.defaultAiModel || "llama3.2:3b";
+            const model = input.model || ENV.defaultAiModel || "liquid/lfm3-omni";
             
             const config: ModelConfig = {
               provider,

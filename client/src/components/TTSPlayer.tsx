@@ -23,7 +23,7 @@ const voices = [
   { id: "en_US-ryan-medium", name: "Ryan", category: "US Male", tone: "Smooth" },
 ];
 
-export function TTSPlayer({ text, onSynthesizing, preferredProvider = "elevenlabs", preferredSpeed = 1, autoPlay = false, stopSignal = 0, onPlaybackStateChange }: TTSPlayerProps) {
+export function TTSPlayer({ text, onSynthesizing, preferredProvider = "elevenlabs", preferredSpeed = 0.75, autoPlay = false, stopSignal = 0, onPlaybackStateChange }: TTSPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [provider, setProvider] = useState<TTSProviderOption>(preferredProvider);

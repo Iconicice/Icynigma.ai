@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   background: "gradient",
   font: "futuristic",
   ttsProvider: "elevenlabs",
-  ttsSpeed: 1,
+  ttsSpeed: 0.75,
   accentColor: "#a78bfa",
   voiceInputEnabled: true,
   liveVoiceEnabled: true,

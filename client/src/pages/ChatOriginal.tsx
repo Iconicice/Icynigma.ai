@@ -6,7 +6,7 @@ import { InstallAppButton } from "@/components/InstallAppButton";
 import { Button } from "@/components/ui/button";
 import { useNotification } from "@/contexts/NotificationContext";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, HelpCircle, LogOut, Settings, Sparkles } from "lucide-react";
+import { ArrowLeft, HelpCircle, LogOut, Settings, Sparkles, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 
@@ -39,6 +39,7 @@ export default function ChatOriginal() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [offlineMode, setOfflineMode] = useState(false);
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
 
   const conversationsQuery = trpc.conversations.list.useQuery(undefined, { enabled: isAuthenticated });
@@ -95,7 +96,13 @@ export default function ChatOriginal() {
     try {
       const conversationId = activeConversationId ?? await createConversation(titleFromMessage(content));
       setMessages((previous) => [...previous, { role: "user", content }]);
-      const response = await sendMessageMutation.mutateAsync({ message: content, conversationId });
+      const response = await sendMessageMutation.mutateAsync({
+        message: content,
+        conversationId,
+        useLocalAI: offlineMode,
+        provider: offlineMode ? "ollama" : undefined,
+        model: offlineMode ? "liquid/lfm3-omni" : undefined,
+      });
       setMessages((previous) => [...previous, { role: "assistant", content: response.message }]);
       await Promise.all([
         utils.chat.getHistory.invalidate({ conversationId }),
@@ -176,6 +183,9 @@ export default function ChatOriginal() {
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             <InstallAppButton compact className="border-accent/20 bg-transparent hover:bg-accent/10" />
+            <Button type="button" variant={offlineMode ? "default" : "ghost"} size="icon" onClick={() => setOfflineMode((current) => !current)} className="hover:bg-accent/10" aria-label={offlineMode ? "Use cloud AI" : "Use offline AI"} title={offlineMode ? "Offline AI enabled" : "Enable offline AI"}>
+              <WifiOff className="h-4 w-4" />
+            </Button>
             <Button type="button" variant="ghost" size="icon" onClick={() => setShowHelp((visible) => !visible)} className="hover:bg-accent/10" aria-label="Show chat help" title="Help">
               <HelpCircle className="h-4 w-4" />
             </Button>

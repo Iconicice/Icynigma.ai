@@ -44,7 +44,7 @@ function toBase64(buffer: ArrayBuffer) {
 export function AIChatBox({
   messages, onSendMessage, isLoading = false, placeholder = "Type your message...", className, height = "600px",
   emptyStateMessage = "Start a conversation with Icynigma", suggestedPrompts, voiceInputEnabled = true, liveVoiceEnabled = true,
-  voiceInputProvider = "elevenlabs", ttsProvider = "elevenlabs", ttsSpeed = 1,
+  voiceInputProvider = "elevenlabs", ttsProvider = "elevenlabs", ttsSpeed = 0.75,
 }: AIChatBoxProps) {
   const [input, setInput] = useState("");
   const [cloudStatus, setCloudStatus] = useState<"idle" | "listening" | "transcribing" | "error">("idle");

@@ -1,25 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Settings, Volume2, Zap, Brain, Robot, Globe, Server } from "lucide-react";
+import { Settings, Volume2, Zap, Brain, Bot, Globe, Server } from "lucide-react";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AIModelSelector } from "./AIModelSelector";
+import type { UserSettings } from "@/lib/settings";
+export { DEFAULT_SETTINGS } from "@/lib/settings";
+export type { UserSettings } from "@/lib/settings";
 
 interface EnhancedSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onClearHistory?: () => void;
+  onSettingsChange?: (settings: UserSettings) => void;
 }
 
 export function EnhancedSettingsModal({ 
   isOpen, 
   onClose, 
-  onClearHistory 
+  onClearHistory
 }: EnhancedSettingsModalProps) {
   const [activeTab, setActiveTab] = useState("ai");
   const [ttsEnabled, setTtsEnabled] = useState(true);
-  const [ttsSpeed, setTtsSpeed] = useState(1);
-  const [ttsProvider, setTtsProvider] = useState<"piper" | "web-speech" | "elevenlabs">("piper");
+  const [ttsSpeed, setTtsSpeed] = useState(0.75);
+  const [ttsProvider, setTtsProvider] = useState<"piper" | "web-speech" | "elevenlabs">("elevenlabs");
   const [useLocalAI, setUseLocalAI] = useState(false);
 
   return (

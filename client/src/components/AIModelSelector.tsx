@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -56,45 +55,16 @@ export function AIModelSelector({
   const [ollamaUrl, setOllamaUrl] = useState<string>("http://localhost:11434");
   
   // Fetch available models
-  const { data: modelsData, isLoading: modelsLoading, error: modelsError } = useQuery({
-    queryKey: ["ai", "available-models"],
-    queryFn: async () => {
-      const result = await trpc.ai.getAvailableModels.query();
-      return result;
-    },
-    staleTime: 60000, // 1 minute
-  });
+  const { data: modelsData, isLoading: modelsLoading, error: modelsError } = trpc.ai.getAvailableModels.useQuery(undefined, { staleTime: 60000 });
 
   // Fetch user config
-  const { data: configData, isLoading: configLoading } = useQuery({
-    queryKey: ["ai", "user-config"],
-    queryFn: async () => {
-      const result = await trpc.ai.getUserConfig.query();
-      return result;
-    },
-  });
+  const { data: configData, isLoading: configLoading } = trpc.ai.getUserConfig.useQuery();
 
   // Fetch Ollama availability
-  const { data: availabilityData } = useQuery({
-    queryKey: ["ai", "availability"],
-    queryFn: async () => {
-      return await trpc.ai.checkAvailability.query();
-    },
-    staleTime: 30000,
-  });
+  const { data: availabilityData } = trpc.ai.checkAvailability.useQuery(undefined, { staleTime: 30000 });
 
   // Update user config mutation
-  const updateConfigMutation = useMutation({
-    mutationFn: async (config: {
-      defaultProvider?: string;
-      defaultModel?: string;
-      temperature?: number;
-      maxTokens?: number;
-      useStreaming?: boolean;
-      ollamaUrl?: string;
-    }) => {
-      return await trpc.ai.updateUserConfig.mutate(config);
-    },
+  const updateConfigMutation = trpc.ai.updateUserConfig.useMutation({
     onSuccess: (result) => {
       if (onConfigChange) {
         onConfigChange({
@@ -110,18 +80,10 @@ export function AIModelSelector({
   });
 
   // Pull model mutation
-  const pullModelMutation = useMutation({
-    mutationFn: async (modelName: string) => {
-      return await trpc.ai.pullModel.mutate({ modelName });
-    },
-  });
+  const pullModelMutation = trpc.ai.pullModel.useMutation();
 
   // Test model connection mutation
-  const testModelMutation = useMutation({
-    mutationFn: async (params: { modelName: string; provider?: string }) => {
-      return await trpc.ai.testModel.mutate(params);
-    },
-  });
+  const testModelMutation = trpc.ai.testModel.useMutation();
 
   useEffect(() => {
     if (configData?.config) {
@@ -153,7 +115,7 @@ export function AIModelSelector({
 
   const handlePullModel = async (modelName: string) => {
     if (pullModelMutation.isPending) return;
-    pullModelMutation.mutate(modelName);
+    pullModelMutation.mutate({ modelName });
   };
 
   const handleTestModel = async (modelName: string) => {
@@ -319,7 +281,7 @@ export function AIModelSelector({
                               </Badge>
                             )}
                             {model.loaded && (
-                              <Badge variant="success" className="text-xs">
+                              <Badge variant="default" className="text-xs">
                                 <CheckCircle className="w-3 h-3 mr-1" />
                                 Loaded
                               </Badge>
@@ -469,7 +431,7 @@ export function AIModelSelector({
       )}
 
       {testModelMutation.data && (
-        <Alert variant={testModelMutation.data.connected ? "success" : "destructive"}>
+        <Alert variant={testModelMutation.data.connected ? "default" : "destructive"}>
           {testModelMutation.data.connected ? (
             <CheckCircle className="w-4 h-4" />
           ) : (

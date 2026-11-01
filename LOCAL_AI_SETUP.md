@@ -11,6 +11,7 @@ This guide explains how to configure and use Icynigma.ai with local AI models (O
 - **Model Management**: List, pull, and manage AI models
 - **Privacy**: All processing happens locally - no data leaves your machine
 - **Offline Capability**: Works without internet connection (once models are downloaded)
+- **R.I. creative lens**: Any future “Rogue Intelligence” experience must remain an explicit, bounded fiction/role-play mode; it does not claim sentience, become hostile, self-modify, or send messages without user approval.
 
 ## Quick Start
 

@@ -41,10 +41,10 @@ export interface OllamaStreamChunk {
   done: boolean;
 }
 
-class OllamaClient {
+export class OllamaClient {
   private client: AxiosInstance;
   private baseUrl: string;
-  private model: string = "deepseek-r1:1.5b";
+  private model: string = "liquid/lfm3-omni";
 
   constructor(baseUrl: string = "http://localhost:11434") {
     this.baseUrl = baseUrl;
@@ -61,7 +61,7 @@ class OllamaClient {
     try {
       const response = await this.client.get("/api/tags");
       const models = response.data.models || [];
-      return models.some((m: any) => m.name.includes("deepseek-r1"));
+      return models.length > 0;
     } catch (error) {
       console.error("[Ollama] Connection failed:", error);
       return false;

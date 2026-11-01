@@ -43,6 +43,14 @@ export const SUPPORTED_MODELS: Record<string, {
   requiresApiKey: boolean;
   recommended: boolean;
 }> = {
+  "liquid/lfm3-omni": {
+    name: "Liquid AI LFM3-OMNI",
+    description: "Multimodal local model for private offline conversations when installed in Ollama.",
+    provider: "ollama",
+    format: "safetensors",
+    requiresApiKey: false,
+    recommended: true,
+  },
   // Ollama models
   "deepseek-r1:1.5b": {
     name: "DeepSeek R1 1.5B",
@@ -134,7 +142,7 @@ class LocalAIAgent {
   async getOllamaModels(): Promise<LocalModelInfo[]> {
     try {
       const models = await this.ollamaClient.getAvailableModels();
-      return models.map((name) => ({
+      return models.map((name: string) => ({
         name,
         size: "Unknown",
         digest: "",

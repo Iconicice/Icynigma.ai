@@ -15,8 +15,8 @@ describe("Ollama Client Integration", () => {
       expect(client1).toBe(client2);
     });
 
-    it("has default model set to deepseek-r1:1.5b", () => {
-      expect(ollamaClient.getModel()).toBe("deepseek-r1:1.5b");
+    it("has default model set to Liquid LFM3-OMNI", () => {
+      expect(ollamaClient.getModel()).toBe("liquid/lfm3-omni");
     });
   });
 
@@ -26,7 +26,7 @@ describe("Ollama Client Integration", () => {
       expect(ollamaClient.getModel()).toBe("test-model");
       
       // Reset to default
-      ollamaClient.setModel("deepseek-r1:1.5b");
+      ollamaClient.setModel("liquid/lfm3-omni");
     });
   });
 
