@@ -2,7 +2,8 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { getLoginUrl } from "@/const";
-import { ArrowUpRight, AudioLines, BrainCircuit, CircleUserRound, Menu, Sparkles, WifiOff } from "lucide-react";
+import { ArrowUpRight, AudioLines, BrainCircuit, CircleUserRound, Menu, Moon, Sparkles, Sun, WifiOff } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useLocation } from "wouter";
 
 const capabilities = [
@@ -13,6 +14,7 @@ const capabilities = [
 
 export default function HomeRedesigned() {
   const { isAuthenticated } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [, setLocation] = useLocation();
   const enterChat = () => isAuthenticated ? setLocation("/chat") : (window.location.href = getLoginUrl());
 
@@ -26,7 +28,7 @@ export default function HomeRedesigned() {
           <span className="text-lg font-medium tracking-tight">Icynigma</span>
         </button>
         <div className="hidden items-center gap-7 text-sm text-muted-foreground md:flex"><a href="#capabilities" className="transition-colors hover:text-foreground">Capabilities</a><a href="#about" className="transition-colors hover:text-foreground">About</a><InstallAppButton compact className="aurora-outline-button" /></div>
-        <div className="flex items-center gap-2"><Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation"><Menu className="h-5 w-5" /></Button><Button onClick={enterChat} className="aurora-dark-button rounded-full px-5">{isAuthenticated ? "Open chat" : "Sign in"}<ArrowUpRight className="ml-2 h-4 w-4" /></Button></div>
+        <div className="flex items-center gap-2"><Button variant="ghost" size="icon" onClick={toggleTheme} className="aurora-theme-button" aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"}>{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</Button><Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation"><Menu className="h-5 w-5" /></Button><Button onClick={enterChat} className="aurora-dark-button rounded-full px-5">{isAuthenticated ? "Open chat" : "Sign in"}<ArrowUpRight className="ml-2 h-4 w-4" /></Button></div>
       </nav>
 
       <section className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-5 pb-20 pt-20 text-center sm:pt-28">

@@ -5,8 +5,9 @@ import { EnhancedSettingsModal, DEFAULT_SETTINGS, type UserSettings } from "@/co
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { Button } from "@/components/ui/button";
 import { useNotification } from "@/contexts/NotificationContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, HelpCircle, LogOut, Settings, Sparkles, WifiOff } from "lucide-react";
+import { ArrowLeft, HelpCircle, LogOut, Moon, Settings, Sparkles, Sun, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 
@@ -32,6 +33,7 @@ function titleFromMessage(message: string) {
 
 export default function ChatOriginal() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const { success, error: showError } = useNotification();
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
@@ -183,6 +185,7 @@ export default function ChatOriginal() {
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             <InstallAppButton compact className="border-accent/20 bg-transparent hover:bg-accent/10" />
+            <Button type="button" variant="ghost" size="icon" onClick={toggleTheme} className="hover:bg-accent/10" aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"}>{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</Button>
             <Button type="button" variant={offlineMode ? "default" : "ghost"} size="icon" onClick={() => setOfflineMode((current) => !current)} className="hover:bg-accent/10" aria-label={offlineMode ? "Use cloud AI" : "Use offline AI"} title={offlineMode ? "Offline AI enabled" : "Enable offline AI"}>
               <WifiOff className="h-4 w-4" />
             </Button>
