@@ -301,16 +301,17 @@
   .aurora-feature-card:hover { transform: translateY(-4px); box-shadow: 0 18px 46px rgba(73, 94, 145, .13); }
   .aurora-feature-icon { display: grid; place-items: center; height: 42px; width: 42px; border-radius: 14px; color: #5975e8; background: linear-gradient(135deg, #e0eaff, #f6e4ff); }
   .live-avatar { position: absolute; z-index: 20; top: 16px; right: 18px; display: flex; align-items: center; gap: 8px; border: 1px solid color-mix(in oklab, var(--accent) 36%, transparent); border-radius: 999px; padding: 6px 10px 6px 6px; background: color-mix(in oklab, var(--card) 88%, transparent); box-shadow: 0 10px 30px rgba(0,0,0,.18); backdrop-filter: blur(16px); }
-  .live-avatar-core { position: relative; display: grid; place-items: center; height: 34px; width: 34px; border-radius: 50%; color: var(--accent); background: radial-gradient(circle, color-mix(in oklab, var(--accent) 30%, transparent), color-mix(in oklab, var(--accent) 8%, transparent)); animation: live-breathe 2s ease-in-out infinite; }
+  .live-avatar-core { position: relative; display: grid; place-items: center; height: 40px; width: 40px; overflow: hidden; border-radius: 50%; color: var(--accent); background: radial-gradient(circle, color-mix(in oklab, var(--accent) 30%, transparent), color-mix(in oklab, var(--accent) 8%, transparent)); animation: live-breathe 2s ease-in-out infinite; }
   .live-avatar-core::before, .live-avatar-core::after { content: ''; position: absolute; inset: -5px; border: 1px solid color-mix(in oklab, var(--accent) 40%, transparent); border-radius: 50%; animation: live-wave 2s ease-out infinite; }
   .live-avatar-core::after { animation-delay: .7s; }
-  .live-avatar-eye { position: absolute; top: 12px; height: 3px; width: 3px; border-radius: 50%; background: currentColor; }
-  .live-avatar-eye-left { left: 10px; }.live-avatar-eye-right { right: 10px; }
+  .live-avatar-image { height: 100%; width: 100%; object-fit: cover; object-position: center top; }
+  .live-avatar-scan { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 42%, color-mix(in oklab, var(--accent) 70%, transparent) 50%, transparent 58%); opacity: .7; animation: live-scan 2.6s linear infinite; pointer-events: none; }
   .live-avatar-label { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-foreground); }
   .live-avatar-speaking .live-avatar-core { color: #f39ac5; }.live-avatar-thinking .live-avatar-core { color: #7aa7ff; }.live-avatar-error .live-avatar-core { color: #fb7185; }
   @keyframes live-breathe { 0%, 100% { transform: scale(.94); } 50% { transform: scale(1.06); } }
   @keyframes live-wave { 0% { opacity: .8; transform: scale(.8); } 100% { opacity: 0; transform: scale(1.6); } }
-  @media (prefers-reduced-motion: reduce) { .aurora-feature-card, .live-avatar-core, .live-avatar-core::before, .live-avatar-core::after { transition: none; animation: none; } .aurora-feature-card:hover { transform: none; } }
+  @keyframes live-scan { 0% { transform: translateY(-110%); } 100% { transform: translateY(110%); } }
+  @media (prefers-reduced-motion: reduce) { .aurora-feature-card, .live-avatar-core, .live-avatar-core::before, .live-avatar-core::after, .live-avatar-scan { transition: none; animation: none; } .aurora-feature-card:hover { transform: none; } }
   @keyframes signal-drift { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); } 50% { transform: translate3d(2%, -2%, 0) rotate(4deg); } }
   @keyframes signal-spin { to { transform: rotate(360deg); } }
   @keyframes signal-blink { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
