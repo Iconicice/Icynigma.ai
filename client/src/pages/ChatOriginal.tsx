@@ -179,7 +179,7 @@ export default function ChatOriginal() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="hidden min-w-0 sm:block">
-              <h1 className="truncate font-futuristic text-sm tracking-[0.2em] text-foreground">ICYNIGMA <span className="text-accent">/</span> WORKSPACE</h1>
+              <h1 className="truncate font-futuristic text-sm tracking-[0.2em] text-foreground">ICYNIGMA.AI <span className="text-accent">/</span> WORKSPACE</h1>
               <p className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground"><span className="signal-pulse" />Reflective channel</p>
             </div>
           </div>
