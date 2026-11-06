@@ -281,8 +281,6 @@
   .aurora-wash { position: absolute; inset: 0; z-index: -2; background: radial-gradient(circle at 20% 8%, rgba(122, 162, 255, .22), transparent 28%), radial-gradient(circle at 82% 12%, rgba(214, 160, 255, .22), transparent 26%), radial-gradient(circle at 54% 48%, rgba(255, 192, 149, .12), transparent 28%); }
   .aurora-grid { position: absolute; inset: 0; z-index: -1; opacity: .28; background-image: linear-gradient(rgba(100, 116, 139, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(100, 116, 139, .07) 1px, transparent 1px); background-size: 64px 64px; mask-image: linear-gradient(to bottom, black, transparent 75%); }
   .aurora-logo { display: grid; place-items: center; height: 38px; width: 38px; border-radius: 12px; color: #4f67e8; background: linear-gradient(135deg, #dbe7ff, #f2dfff); }
-  .ri-logo-3d { perspective: 280px; transform-style: preserve-3d; }
-  .ri-logo-3d img { transform-style: preserve-3d; animation: ri-logo-loop 8s ease-in-out infinite; filter: drop-shadow(0 5px 9px rgba(123, 103, 226, .28)); }
   .aurora-theme-button { color: #64748b; border-radius: 999px; }
   .dark .aurora-theme-button { color: #dbe4ff; }
   .aurora-chip { display: inline-flex; align-items: center; gap: 9px; border: 1px solid rgba(100, 116, 139, .18); border-radius: 999px; background: rgba(255,255,255,.62); padding: 9px 14px; color: #64748b; font-size: 12px; box-shadow: 0 8px 30px rgba(94, 112, 164, .08); }
@@ -303,20 +301,17 @@
   .aurora-feature-card:hover { transform: translateY(-4px); box-shadow: 0 18px 46px rgba(73, 94, 145, .13); }
   .aurora-feature-icon { display: grid; place-items: center; height: 42px; width: 42px; border-radius: 14px; color: #5975e8; background: linear-gradient(135deg, #e0eaff, #f6e4ff); }
   .live-avatar { position: absolute; z-index: 20; top: 16px; right: 18px; display: flex; align-items: center; gap: 8px; border: 1px solid color-mix(in oklab, var(--accent) 36%, transparent); border-radius: 999px; padding: 6px 10px 6px 6px; background: color-mix(in oklab, var(--card) 88%, transparent); box-shadow: 0 10px 30px rgba(0,0,0,.18); backdrop-filter: blur(16px); }
-  .live-avatar-core { position: relative; display: grid; place-items: center; height: 40px; width: 40px; overflow: visible; border-radius: 50%; color: var(--accent); background: radial-gradient(circle, color-mix(in oklab, var(--accent) 30%, transparent), color-mix(in oklab, var(--accent) 8%, transparent)); animation: live-breathe 2s ease-in-out infinite; }
+  .live-avatar-core { position: relative; display: grid; place-items: center; height: 40px; width: 40px; overflow: hidden; border-radius: 50%; color: var(--accent); background: radial-gradient(circle, color-mix(in oklab, var(--accent) 30%, transparent), color-mix(in oklab, var(--accent) 8%, transparent)); animation: live-breathe 2s ease-in-out infinite; }
   .live-avatar-core::before, .live-avatar-core::after { content: ''; position: absolute; inset: -5px; border: 1px solid color-mix(in oklab, var(--accent) 40%, transparent); border-radius: 50%; animation: live-wave 2s ease-out infinite; }
   .live-avatar-core::after { animation-delay: .7s; }
   .live-avatar-image { height: 100%; width: 100%; object-fit: cover; object-position: center top; }
-  .live-avatar-orbit { position: absolute; inset: -7px; border: 1px solid color-mix(in oklab, var(--accent) 65%, transparent); border-radius: 50%; transform: rotateX(68deg) rotateZ(-18deg); box-shadow: 0 0 13px color-mix(in oklab, var(--accent) 28%, transparent); animation: live-orbit 3.8s linear infinite; pointer-events: none; }
   .live-avatar-scan { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 42%, color-mix(in oklab, var(--accent) 70%, transparent) 50%, transparent 58%); opacity: .7; animation: live-scan 2.6s linear infinite; pointer-events: none; }
   .live-avatar-label { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-foreground); }
   .live-avatar-speaking .live-avatar-core { color: #f39ac5; }.live-avatar-thinking .live-avatar-core { color: #7aa7ff; }.live-avatar-error .live-avatar-core { color: #fb7185; }
   @keyframes live-breathe { 0%, 100% { transform: scale(.94); } 50% { transform: scale(1.06); } }
   @keyframes live-wave { 0% { opacity: .8; transform: scale(.8); } 100% { opacity: 0; transform: scale(1.6); } }
   @keyframes live-scan { 0% { transform: translateY(-110%); } 100% { transform: translateY(110%); } }
-  @keyframes ri-logo-loop { 0%, 100% { transform: rotateY(-18deg) rotateZ(-2deg) translateZ(0); } 50% { transform: rotateY(18deg) rotateZ(2deg) translateZ(7px); } }
-  @keyframes live-orbit { to { transform: rotateX(68deg) rotateZ(342deg); } }
-  @media (prefers-reduced-motion: reduce) { .aurora-feature-card, .ri-logo-3d img, .live-avatar-core, .live-avatar-core::before, .live-avatar-core::after, .live-avatar-scan, .live-avatar-orbit { transition: none; animation: none; } .aurora-feature-card:hover { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .aurora-feature-card, .live-avatar-core, .live-avatar-core::before, .live-avatar-core::after, .live-avatar-scan { transition: none; animation: none; } .aurora-feature-card:hover { transform: none; } }
   @keyframes signal-drift { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); } 50% { transform: translate3d(2%, -2%, 0) rotate(4deg); } }
   @keyframes signal-spin { to { transform: rotate(360deg); } }
   @keyframes signal-blink { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
