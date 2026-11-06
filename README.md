@@ -33,6 +33,12 @@ ICYNIGMA_LLM_THINKING_BUDGET=256
 
 The browser Live Voice path continues to use the existing ElevenLabs/device fallbacks. The Android offline path remains separate: it uses the locally downloaded Gemma 3n/LiteRT-LM adapter and must not claim that it has current online knowledge while offline.
 
+## Portable standalone agent
+
+`AGENT.py` provides a dependency-free Python runtime for Icynigma.ai Systems [R.I]. It works on ordinary Python 3.10+ environments, Linux servers, Docker, Android Python runtimes, and Termux without requiring Termux. It supports SQLite WAL memory persistence, OpenRouter online routing, Ollama/LFM3-OMNI offline fallback, and safe optional adapters for local voice and camera capabilities. See `PORTABLE_AGENT_SETUP.md`, `Dockerfile.agent`, and `Procfile` for deployment options. The original Android, Taskade, Make.com, and research blueprints remain preserved.
+
+The current infrastructure audit is recorded in `deployment_manifest.json`. DNS and Cloudflare edge settings are intentionally unchanged until authoritative ownership of the canonical domain is verified.
+
 ## 🚀 Quick Start (Replit)
 
 ### 1. Create Replit Project

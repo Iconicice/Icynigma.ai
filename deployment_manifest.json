@@ -1,0 +1,48 @@
+{
+  "project": "Icynigma.ai Systems [R.I]",
+  "creator": "Inolofatseng Ice Mokgoko / Iconic Media Entertainment",
+  "audited_at": "2026-11-06T05:50:00+02:00",
+  "deployment_status": "prepared_pending_domain_authority",
+  "canonical_hosting_target": "https://icynigma.manus.space",
+  "alternate_hosting_target": "https://icynigma-xkxmkqhz.manus.space",
+  "candidate_domains": {
+    "icynigma.co.za": {
+      "public_nameservers": ["cipc1.dns.net.za", "cipc2.dns.net.za"],
+      "public_a": ["157.90.205.139"],
+      "cloudflare_zone_visible": false,
+      "action": "No DNS changes made; registrar/DNS authority remains outside Cloudflare"
+    },
+    "icynigma.ai": {
+      "public_nameservers": [],
+      "public_records": [],
+      "cloudflare_zone_visible": false,
+      "action": "No DNS changes made; ownership and registrar authority must be verified"
+    }
+  },
+  "cloudflare": {
+    "api_read_status": "unauthorized",
+    "zone_changes": false,
+    "ssl_tls_changes": false,
+    "waf_changes": false,
+    "redirect_changes": false
+  },
+  "github": {
+    "repository": "https://github.com/Iconicice/Icynigma.ai",
+    "branch": "main",
+    "public": true,
+    "portable_agent_files_prepared": true
+  },
+  "portable_agent": {
+    "entrypoint": "AGENT.py",
+    "runtime": "Python 3.10+ standard library",
+    "termux_required": false,
+    "offline_provider": "Ollama REST / lfm3-omni",
+    "online_provider": "OpenRouter when OPENROUTER_API_KEY is configured"
+  },
+  "safety": {
+    "credentials_stored": false,
+    "shell_execution": "proposal_only",
+    "external_messages_sent": false,
+    "dns_or_edge_mutations": false
+  }
+}
